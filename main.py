@@ -64,14 +64,14 @@ def main_menu():
         elif choice == "2 -v":
             print_rankings(verbose=True)
         elif choice == "3":
-            print("Please provide the path to your CSV book log to sync new books.")
+            print(" Please provide the path to your CSV book log to sync new books.")
             csv_reader()
             state.books = Book.load_all()
             state.book_count = len(state.books)
         elif choice == "4":
             quit_game()
         else:
-            print("Invalid choice, I can only read options 1-4.")
+            print(" Invalid choice, I can only read options 1-4.")
 
         print()
 

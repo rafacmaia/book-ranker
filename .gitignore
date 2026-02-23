@@ -26,3 +26,6 @@ build/
 
 # Environment variables
 .env
+
+# Sample data
+sample-data/book-log.csv

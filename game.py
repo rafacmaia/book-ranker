@@ -38,9 +38,7 @@ def calculate_elo(winner, loser, k=32):
 
 def resolve_comparison(winner, loser):
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
-
     save_comparison(winner.id, loser.id)
-
     winner.update_elo(new_winner_elo)
     loser.update_elo(new_loser_elo)
 
@@ -48,7 +46,7 @@ def resolve_comparison(winner, loser):
 def run():
     print(GAME_MENU)
 
-    book_a, book_b = random.sample(state.books, 2)
+    book_a, book_b = select_opponents()
     while True:
         print("\n\033[1;33m Which means more to you?\033[0m")
         print(f"   \033[1;33m1.\033[0m {book_a}")
@@ -65,11 +63,30 @@ def run():
             resolve_comparison(winner=book_b, loser=book_a)
         else:
             print(
-                "\033[1;31m⚠️ Invalid choice - try '1', '2', 'b', or 'q' to quit.\033[0m"
+                "\033[1;31m ⚠️ Invalid choice - try '1', '2', 'b', or 'q' to quit.\033[0m"
             )
             continue
 
         book_a, book_b = random.sample(state.books, 2)
+
+
+def select_opponents():
+    """Select two books using weighted random selection favouring low-confidence books."""
+    opponents_count = get_unique_opponent_count()
+    weights = [
+        1 - (opponents_count.get(book.id, 0) / (state.book_count - 1))
+        for book in state.books
+    ]
+
+    # Avoid zero weights so books always have a minimum chance of being selected
+    weights = [max(w, 0.1) for w in weights]
+
+    book_a = random.choices(state.books, weights=weights, k=1)[0]
+    remaining = [b for b in state.books if b.id != book_a.id]
+    remaining_weights = [w for b, w in zip(state.books, weights) if b.id != book_a.id]
+    book_b = random.choices(remaining, weights=remaining_weights, k=1)[0]
+
+    return book_a, book_b
 
 
 def quit_game():
