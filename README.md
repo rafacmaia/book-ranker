@@ -7,7 +7,8 @@
 
 You've read dozens (hundreds?) of books and vaguely know you like some better
 than others. But which one was actually your favourite? Your top 20? Top 42?
-And was that 7 you gave in 2021 really fair compared to the 8 you handed out
+And was that rating of 7 you gave in 2021 really fair compared to the 8 you
+handed out
 last week?
 
 Book Ranker cuts through the noise by turning your reading log into a
@@ -17,12 +18,14 @@ tournament. It pits two books head-to-head and asks one simple question:
 
 Over time, an Elo-based rating system does the math and builds a ranked list
 that reflects your ultimate breakdown. No more stuttering when someone asks you
-what your 32nd favorite book of all time is. Those days are over!
+what your 33rd favorite book of all time is. Those days are over!
 
 ## 🪩 Features
 
 - CSV import from your reading log (title, author, rating)
 - Book Arena: head-to-head book comparisons on loop
+- Smart matchmaking: books with lower confidence rating are
+  prioritized
 - Elo-based ranking system with confidence tiers and variable K values
 - Persistent rankings via SQLite to build accurate data over time.
 - Confidence indicators in ranking display.
@@ -76,8 +79,8 @@ Each book starts with an Elo score derived from your initial rating (1–10
 scale, mapped to a range of 800–1200). Every time you pick one book over
 another, both scores are updated using the Elo formula. Books are then ranked
 by their Elo score and displayed with a confidence tier that tells you how much
-data is behind each position. The more confident of the score, the less
-variability it will have from then on.
+data is behind each position. The more confident the score, the less
+variability the ranking will have from then on.
 
 ### Confidence Tiers
 
@@ -101,8 +104,7 @@ variability it will have from then on.
 
 ## 🗺️ Roadmap
 
-- [ ] Smart matchmaking (prioritize books with lower confidence rating and
-  similar Elo)
+- [ ] Improve matchmaking (prioritize books with similar Elo scores)
 - [ ] CSV export of final rankings
 - [ ] Handle tied Elo scores (e.g., by initial rating,
   head-to-head comparison, and confidence rating)
