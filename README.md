@@ -14,7 +14,7 @@ last week?
 Book Ranker cuts through the noise by turning your reading log into a
 tournament. It pits two books head-to-head and asks one simple question:
 
-> Which book meant more to you, A or B?
+> Which book means more to you, A or B?
 
 Over time, an Elo-based rating system does the math and builds a ranked list
 that reflects your ultimate breakdown. No more stuttering when someone asks you
@@ -22,14 +22,13 @@ what your 33rd favorite book of all time is. Those days are over!
 
 ## 🪩 Features
 
-- CSV import from your reading log (title, author, rating)
+- CSV import from your reading log (format: title, author, rating)
 - Book Arena: head-to-head book comparisons on loop
-- Smart matchmaking: books with lower confidence rating are
-  prioritized
 - Elo-based ranking system with confidence tiers and variable K values
-- Persistent rankings via SQLite to build accurate data over time.
-- Confidence indicators in ranking display.
-- New books additions at any time.
+- Smart matchmaking: books with lower confidence rating are prioritized
+- Persistent rankings via SQLite to build accurate data over time
+- Confidence indicators in the ranking display
+- Add new books at any time
 
 ## 📋 Requirements
 
@@ -38,30 +37,44 @@ what your 33rd favorite book of all time is. Those days are over!
 
 ## ⚙️ Setup
 
-1. Clone the repo
-   git clone https://github.com/yourname/book-ranker.git
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/rafacmaia/book-ranker.git
    cd book-ranker
+   ```
 
-2. Create a virtual environment and activate it
+2. Create a virtual environment and activate it:
+   ```bash
    python -m venv .venv
    source .venv/bin/activate
+   ```
 
-3. Install dependencies
+3. Install dependencies:
+   ```bash
    pip install -r requirements.txt
+   ```
 
-4. Run the app
+4. Run the app:
+   ```bash
    python main.py
+   ```
 
-In the first run, you'll be prompted to import your book log as a CSV, and on
-subsequent runs you'll be given the option of updating your book log if you
-want to add to it.
+   In the first run, you'll be prompted to import your book log from a CSV
+   file.
+
+5. To run on sample data instead of your own library:
+   ```bash
+   python main.py --test
+   ```
+   A sample CSV with 20 books is included at [
+   `data/sample-books.csv`](data/sample-book.csv) to play with.
 
 ## 📃 CSV Format
 
 Your CSV file should have the following columns:
 > title, author, rating
 
-Where rating is a number from 1 to 10, inclusive. Decimals allowed!
+Where rating is a number from 1 to 10, inclusive. Decimals encouraged!
 
 Example:
 
@@ -111,6 +124,7 @@ variability the ranking will have from then on.
 - [ ] Support for adding/removing individual books
 - [ ] Undo option for mistakes (track & undo the last 1-3 face-offs)
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "
+  Fantasy")
 - [ ] Web terminal, serve the CLI interface via browser (Flask + xterm.js)
 - [ ] Web UI, full browser-based interface (longer term)
-  Fantasy")
+  
