@@ -21,16 +21,16 @@ favorite book of all time is. Those days are over!
 ## 🪄 Preview
 
 <details>
-<summary><b>Screenshots of latest version</b></summary>
+<summary><b>&nbsp;Screenshots of latest version</b></summary>
 
 <h3>Book Arena:</h3>
-<img src="screenshots/game-arena-1.png" width="420" alt="Game Arena Start">
-<img src="screenshots/game-arena-2.png" width="420" alt="Game Arena ongoing comparisons">
-<img src="screenshots/game-arena-3.png" width="420" alt="Game Arena ongoing comparisons">
+<img src="screenshots/game-arena-1.png" alt="Game Arena Start">
+<img src="screenshots/game-arena-2.png" alt="Game Arena ongoing comparisons">
+<img src="screenshots/game-arena-3.png" alt="Game Arena ongoing comparisons">
 
 <h3>View Rankings:</h3>
-<img src="screenshots/rankings-1.png" width="420" alt="Rankings display 1">
-<img src="screenshots/rankings-2.png" width="420" alt="Rankings display 2">
+<img src="screenshots/rankings-1.png" alt="Rankings display 1">
+<img src="screenshots/rankings-2.png" alt="Rankings display 2">
 
 
 </details>
