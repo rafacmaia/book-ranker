@@ -1,7 +1,7 @@
 import os
 
 from db import init_db
-from display import print_rankings, MAIN_MENU
+from display import print_rankings, MAIN_MENU, LINE_WIDTH
 import state
 
 from models import Book
@@ -36,7 +36,9 @@ def csv_reader():
 
 
 def startup():
-    print(f"\n\033[1;32m{'–' * 40} BOOK RANKER {'–' * 40}\033[0m")
+    print(
+        f"\n\033[1;32m{'–' * (LINE_WIDTH // 2 - 7)} BOOK RANKER {'–' * (LINE_WIDTH // 2 - 6)}\033[0m"
+    )
     # print(f"\033[1;32m{'|'*37}\033[0m")
     # print("\033[1;32m–––––––––––––––––––––––––––––––––––––\033[0m")
 

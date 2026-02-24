@@ -6,7 +6,7 @@ import sys
 import state
 
 from db import save_comparison, get_unique_opponent_count
-from display import GAME_MENU
+from display import GAME_MENU, LINE_WIDTH
 from datetime import datetime
 
 
@@ -24,7 +24,7 @@ def get_k(unique_opponents):
         return 20
 
 
-def calculate_elo(winner, loser, k=32):
+def calculate_elo(winner, loser):
     unique_opponents = get_unique_opponent_count()
     winner_k = get_k(unique_opponents.get(winner.id, 0))
     loser_k = get_k(unique_opponents.get(winner.id, 0))
@@ -46,9 +46,13 @@ def resolve_comparison(winner, loser):
 def run():
     print(GAME_MENU)
 
+    match_count = 1
     book_a, book_b = select_opponents()
     while True:
-        print("\n\033[1;33m Which means more to you?\033[0m")
+        print(
+            f"\n\033[1;34m{' ' * (LINE_WIDTH - 6 - len(str(match_count)))}–– {match_count} ––\033[0m"
+        )
+        print(f"\033[1;33m Which means more to you?\033[0m")
         print(f"   \033[1;33m1.\033[0m {book_a}")
         print(f"   \033[1;33m2.\033[0m {book_b}")
         choice = input("\033[1;33m > \033[0m").strip().lower()
@@ -67,14 +71,15 @@ def run():
             )
             continue
 
-        book_a, book_b = random.sample(state.books, 2)
+        book_a, book_b = select_opponents()
+        match_count += 1
 
 
 def select_opponents():
-    """Select two books using weighted random selection favouring low-confidence books."""
-    opponents_count = get_unique_opponent_count()
+    """Select two books using weighted random selection favoring low-confidence books."""
+    opponent_count = get_unique_opponent_count()
     weights = [
-        1 - (opponents_count.get(book.id, 0) / (state.book_count - 1))
+        1 - (opponent_count.get(book.id, 0) / (state.book_count - 1))
         for book in state.books
     ]
 
@@ -92,7 +97,9 @@ def select_opponents():
 def quit_game():
     backup_db()
     backup_cleanup()
-    print("\033[1;32m\n 📚Goodbye! Keep on reading 📚\033[0m")
+    print(
+        f"\033[1;32m\n {'–' * (LINE_WIDTH // 2 - 15)} 📚Goodbye! Keep on reading 📚 {'–' * (LINE_WIDTH // 2 - 15)}\033[0m"
+    )
     sys.exit()
 
 

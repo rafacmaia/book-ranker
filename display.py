@@ -6,17 +6,18 @@ from rich import box
 
 from db import get_unique_opponent_count
 
-INITIAL_BATCH_SIZE = 100
+INITIAL_BATCH_SIZE = 50
 BATCH_SIZE = 50
+LINE_WIDTH = 98  # Keep it an even number
 
-MAIN_MENU = f"""\033[1;34m MAIN MENU {'–' * 82}\033[0m
+MAIN_MENU = f"""\033[1;34m MAIN MENU {'–' * (LINE_WIDTH - 11)}\033[0m
  1. Play
  2. View Rankings
  3. Import New Books
  4. Quit"""
 
 GAME_MENU = f"""
-\033[1;34m BOOK ARENA {'–' * 81}\033[0m
+\033[1;34m BOOK ARENA {'–' * (LINE_WIDTH - 12)}\033[0m
  Let's rank some books!
  Books will face-off in random matches to craft the ultimate book ranking.
  Options:
@@ -32,12 +33,14 @@ def print_rankings(verbose=False):
     batch_end = INITIAL_BATCH_SIZE
 
     print(
-        f"\n\033[1;32m {'–' * 37} CURRENT RANKINGS {'–' * 37}\033[0m",
+        f"\n\033[1;32m {'–' * (LINE_WIDTH // 2 - 9)} CURRENT RANKINGS {'–' * (LINE_WIDTH // 2 - 10)}\033[0m",
     )
     print_table(ranked_books, 0, batch_end, verbose)
 
     while batch_end < state.book_count:
-        selection = input(f"{' ' * 69}\033[1;33m See next {BATCH_SIZE} (y/n) > \033[0m")
+        selection = input(
+            f"{' ' * (LINE_WIDTH - 25)}\033[1;33m See next {BATCH_SIZE} (y/n) > \033[0m"
+        )
         if selection.lower() == "y":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
@@ -53,8 +56,10 @@ def print_table(books, start, end, verbose=False):
         border_style="blue",
     )
 
-    table.add_column("#", justify="center", style="bold green", header_style="green")
-    table.add_column("TITLE", justify="left", header_style="bold green", width=39)
+    table.add_column(
+        "#", justify="center", style="bold green", header_style="green", width=4
+    )
+    table.add_column("TITLE", justify="left", header_style="bold green", width=43)
     table.add_column("AUTHOR", justify="left", header_style="bold green", width=28)
     table.add_column("CONFIDENCE", justify="left", header_style="bold green")
     if verbose:
