@@ -5,20 +5,35 @@
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
 ![Last commit](https://img.shields.io/github/last-commit/rafacmaia/book-ranker)
 
-You've read dozens (hundreds?) of books and vaguely know you like some better
-than others. But which one was actually your favourite? Your top 20? Top 42?
-And was that rating of 7 you gave in 2021 really fair compared to the 8 you
-handed out
-last week?
+You've read dozens (hundreds?) of books and vaguely know you like some better than
+others. But which one was actually your favourite? Your top 20? Top 42? And was that
+rating of 7 you gave in 2021 really fair compared to the 8 you handed out last week?
 
-Book Ranker cuts through the noise by turning your reading log into a
-tournament. It pits two books head-to-head and asks one simple question:
+Book Ranker cuts through the noise by turning your reading log into a tournament. It pits
+two books head-to-head and asks one simple question:
 
 > Which book means more to you, A or B?
 
-Over time, an Elo-based rating system does the math and builds a ranked list
-that reflects your ultimate breakdown. No more stuttering when someone asks you
-what your 33rd favorite book of all time is. Those days are over!
+Over time, an Elo-based rating system does the math and builds a ranked list that
+reflects your ultimate breakdown. No more stuttering when someone asks you what your 33rd
+favorite book of all time is. Those days are over!
+
+## 🪄 Preview
+
+<details>
+<summary><b>Screenshots of latest version</b></summary>
+
+<h3>Book Arena:</h3>
+<img src="screenshots/game-arena-1.png" width="420" alt="Game Arena Start">
+<img src="screenshots/game-arena-2.png" width="420" alt="Game Arena ongoing comparisons">
+<img src="screenshots/game-arena-3.png" width="420" alt="Game Arena ongoing comparisons">
+
+<h3>View Rankings:</h3>
+<img src="screenshots/rankings-1.png" width="420" alt="Rankings display 1">
+<img src="screenshots/rankings-2.png" width="420" alt="Rankings display 2">
+
+
+</details>
 
 ## 🪩 Features
 
@@ -43,24 +58,26 @@ what your 33rd favorite book of all time is. Those days are over!
    cd book-ranker
    ```
 
+
 2. Create a virtual environment and activate it:
    ```bash
    python -m venv .venv
    source .venv/bin/activate
    ```
 
+
 3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
+
 4. Run the app:
    ```bash
    python main.py
    ```
+   In the first run, you'll be prompted to import your book log from a CSV file.
 
-   In the first run, you'll be prompted to import your book log from a CSV
-   file.
 
 5. To run on sample data instead of your own library:
    ```bash
@@ -88,12 +105,11 @@ Just Kids,Patti Smith,9
 
 ## 📖 How It Works
 
-Each book starts with an Elo score derived from your initial rating (1–10
-scale, mapped to a range of 800–1200). Every time you pick one book over
-another, both scores are updated using the Elo formula. Books are then ranked
-by their Elo score and displayed with a confidence tier that tells you how much
-data is behind each position. The more confident the score, the less
-variability the ranking will have from then on.
+Each book starts with an Elo score derived from your initial rating (1–10 scale, mapped
+to a range of 800–1200). Every time you pick one book over another, both scores are
+updated using the Elo formula. Books are then ranked by their Elo score and displayed
+with a confidence tier that tells you how much data is behind each position. The more
+confident the score, the less variability the ranking will have from then on.
 
 ### Confidence Tiers
 
@@ -119,12 +135,11 @@ variability the ranking will have from then on.
 
 - [ ] Improve matchmaking (prioritize books with similar Elo scores)
 - [ ] CSV export of final rankings
-- [ ] Handle tied Elo scores (e.g., by initial rating,
-  head-to-head comparison, and confidence rating)
+- [ ] Handle tied Elo scores (e.g., by initial rating, head-to-head comparison, and
+  confidence rating)
 - [ ] Support for adding/removing individual books
 - [ ] Undo option for mistakes (track and undo the last 1–3 face-offs)
-- [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "
-  Fantasy")
+- [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
 - [ ] Web terminal; serve the CLI interface via browser (Flask + xterm.js)
 - [ ] Web UI, full browser-based interface (longer term)
   
