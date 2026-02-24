@@ -102,6 +102,10 @@ def quit_game():
     )
     sys.exit()
 
+def calculate_elo(winner, loser):
+    unique_opponents = get_unique_opponent_count()
+    winner_k = get_k(unique_opponents.get(winner.id, 0))
+    loser_k = get_k(unique_opponents.get(loser.id, 0))
 
 def backup_db():
     backup_dir = "backup"
