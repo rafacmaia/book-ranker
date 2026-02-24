@@ -67,7 +67,7 @@ what your 33rd favorite book of all time is. Those days are over!
    python main.py --test
    ```
    A sample CSV with 20 books is included at [
-   `data/sample-books.csv`](data/sample-book.csv) to play with.
+   `data/sample-books.csv`](data/sample-books.csv) to get you started.
 
 ## 📃 CSV Format
 
@@ -98,22 +98,22 @@ variability the ranking will have from then on.
 ### Confidence Tiers
 
 - 🔴 Very Low: fewer than 10% of possible matchups played
-- 🟠 Low: 10-25% of matchups played
+- 🟠 Low: 10–25% of matchups played
 - 🟡 Moderate: 25–50% of matchups played
 - 🟢 High: 50–75% of matchups played
 - ✅ Very High: 75%+ of matchups played
 
 ## 🗂️ Project Structure
 
-| File                         | Description                    |
-|------------------------------|--------------------------------|
-| [`main.py`](main.py)         | Entry point and main menu      |
-| [`game.py`](game.py)         | Game loop and Elo logic        |
-| [`models.py`](models.py)     | Book class                     |
-| [`db.py`](db.py)             | Database setup and queries     |
-| [`importer.py`](importer.py) | CSV import logic               |
-| [`display.py`](display.py)   | Book ranking logic and display |
-| [`state.py`](state.py)       | Global state management        |
+| File                         | Description                       |
+|------------------------------|-----------------------------------|
+| [`main.py`](main.py)         | Entry point and main menu         |
+| [`game.py`](game.py)         | Game loop and Elo logic           |
+| [`models.py`](models.py)     | Book class                        |
+| [`db.py`](db.py)             | Database setup and queries        |
+| [`importer.py`](importer.py) | CSV import logic                  |
+| [`display.py`](display.py)   | Rankings display and UI constants |
+| [`state.py`](state.py)       | Global state management           |
 
 ## 🗺️ Roadmap
 
@@ -122,9 +122,9 @@ variability the ranking will have from then on.
 - [ ] Handle tied Elo scores (e.g., by initial rating,
   head-to-head comparison, and confidence rating)
 - [ ] Support for adding/removing individual books
-- [ ] Undo option for mistakes (track & undo the last 1-3 face-offs)
+- [ ] Undo option for mistakes (track and undo the last 1–3 face-offs)
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "
   Fantasy")
-- [ ] Web terminal, serve the CLI interface via browser (Flask + xterm.js)
+- [ ] Web terminal; serve the CLI interface via browser (Flask + xterm.js)
 - [ ] Web UI, full browser-based interface (longer term)
   

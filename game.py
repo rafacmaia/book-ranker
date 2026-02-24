@@ -1,73 +1,44 @@
-import os
 import random
-import shutil
-import sys
+import textwrap
 
 import state
-
 from db import save_comparison, get_unique_opponent_count
-from display import GAME_MENU, LINE_WIDTH
-from datetime import datetime
+from display import GAME_MENU, LINE_LENGTH
 
 
-def expected_score(rating_a, rating_b):
-    return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
+def run_game():
+    """Run the game's main loop.
 
-
-def get_k(unique_opponents):
-    pct = unique_opponents / (state.book_count - 1)
-    if pct < 0.20:
-        return 40
-    elif pct < 0.40:
-        return 30
-    else:
-        return 20
-
-
-def calculate_elo(winner, loser):
-    unique_opponents = get_unique_opponent_count()
-    winner_k = get_k(unique_opponents.get(winner.id, 0))
-    loser_k = get_k(unique_opponents.get(winner.id, 0))
-
-    expected_w = expected_score(winner.elo, loser.elo)
-    expected_l = expected_score(loser.elo, winner.elo)
-    new_winner_elo = round(winner.elo + winner_k * (1 - expected_w))
-    new_loser_elo = round(loser.elo + loser_k * (0 - expected_l))
-    return new_winner_elo, new_loser_elo
-
-
-def resolve_comparison(winner, loser):
-    new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
-    save_comparison(winner.id, loser.id)
-    winner.update_elo(new_winner_elo)
-    loser.update_elo(new_loser_elo)
-
-
-def run():
+    Select two books for comparison, prompt user for selection, resolve the match, and
+    repeat until user stops.
+    """
     print(GAME_MENU)
 
     match_count = 1
     book_a, book_b = select_opponents()
+
     while True:
         print(
-            f"\n\033[1;34m{' ' * (LINE_WIDTH - 6 - len(str(match_count)))}–– {match_count} ––\033[0m"
+            f"\n\033[1;36m {'–' * (LINE_LENGTH - 5 - len(str(match_count)))}"
+            f" {match_count} ––\033[0m"
         )
         print(f"\033[1;33m Which means more to you?\033[0m")
-        print(f"   \033[1;33m1.\033[0m {book_a}")
-        print(f"   \033[1;33m2.\033[0m {book_b}")
+        print(f"   \033[1;33m1.\033[0m {format_book(book_a)}")
+        print(f"   \033[1;33m2.\033[0m {format_book(book_b)}")
         choice = input("\033[1;33m > \033[0m").strip().lower()
 
         if choice == "q":
-            quit_game()
+            return "q"
         elif choice == "b":
-            break
+            return "b"
         elif choice == "1":
             resolve_comparison(winner=book_a, loser=book_b)
         elif choice == "2":
             resolve_comparison(winner=book_b, loser=book_a)
         else:
             print(
-                "\033[1;31m ⚠️ Invalid choice - try '1', '2', 'b', or 'q' to quit.\033[0m"
+                "\033[1;31m ⚠️ Invalid choice - "
+                "try '1', '2', 'b', or 'q' to quit.\033[0m"
             )
             continue
 
@@ -76,7 +47,9 @@ def run():
 
 
 def select_opponents():
-    """Select two books using weighted random selection favoring low-confidence books."""
+    """Select two books using weighted random selection, favoring low-confidence books,
+    i.e., books with fewer unique matches played.
+    """
     opponent_count = get_unique_opponent_count()
     weights = [
         1 - (opponent_count.get(book.id, 0) / (state.book_count - 1))
@@ -94,31 +67,40 @@ def select_opponents():
     return book_a, book_b
 
 
-def quit_game():
-    backup_db()
-    backup_cleanup()
-    print(
-        f"\033[1;32m\n {'–' * (LINE_WIDTH // 2 - 16)} 📚Goodbye! Keep on reading 📚 {'–' * (LINE_WIDTH // 2 - 15)}\033[0m"
-    )
-    sys.exit()
+def format_book(book):
+    return textwrap.fill(str(book), width=LINE_LENGTH - 6, subsequent_indent="\t")
+
+
+def resolve_comparison(winner, loser):
+    new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
+    save_comparison(winner.id, loser.id)
+    winner.update_elo(new_winner_elo)
+    loser.update_elo(new_loser_elo)
+
 
 def calculate_elo(winner, loser):
     unique_opponents = get_unique_opponent_count()
     winner_k = get_k(unique_opponents.get(winner.id, 0))
     loser_k = get_k(unique_opponents.get(loser.id, 0))
 
-def backup_db():
-    backup_dir = "backup"
-    os.makedirs(backup_dir, exist_ok=True)
+    expected_w = expected_score(winner.elo, loser.elo)
+    expected_l = expected_score(loser.elo, winner.elo)
+    new_winner_elo = round(winner.elo + winner_k * (1 - expected_w))
+    new_loser_elo = round(loser.elo + loser_k * (0 - expected_l))
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    backup_path = os.path.join(backup_dir, f"backup_{timestamp}.db")
-
-    shutil.copy("data/books.db", backup_path)
+    return new_winner_elo, new_loser_elo
 
 
-def backup_cleanup(keep=5):
-    backup_dir = "backup"
-    backups = sorted(os.listdir(backup_dir))
-    for old in backups[:-keep]:
-        os.remove(os.path.join(backup_dir, old))
+def get_k(unique_opponents):
+    """Calculate k value based on count of unique opponents, i.e., confidence level."""
+    pct = unique_opponents / (state.book_count - 1)
+    if pct < 0.20:
+        return 40
+    elif pct < 0.40:
+        return 30
+    else:
+        return 20
+
+
+def expected_score(rating_a, rating_b):
+    return 1 / (1 + 10 ** ((rating_b - rating_a) / 400))
