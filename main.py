@@ -16,6 +16,7 @@ def startup():
 
     If no books are in the system, prompt the user to import from a CSV.
     """
+    os.system("cls" if os.name == "nt" else "clear")
     print(
         f"\n\033[1;32m{'–' * (LINE_LENGTH // 2 - 7)} "
         f"BOOK RANKER "
@@ -103,9 +104,9 @@ def quit_game():
     backup_db()
     backup_cleanup()
     print(
-        f"\033[1;32m\n {'–' * (LINE_LENGTH // 2 - 16)} "
+        f"\033[1;32m\n{'–' * (LINE_LENGTH // 2 - 15)} "
         f"📚Goodbye! Keep on reading 📚 "
-        f"{'–' * (LINE_LENGTH // 2 - 15)}\033[0m"
+        f"{'–' * (LINE_LENGTH // 2 - 16)}\033[0m\n"
     )
     sys.exit()
 
