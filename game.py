@@ -98,7 +98,7 @@ def quit_game():
     backup_db()
     backup_cleanup()
     print(
-        f"\033[1;32m\n {'–' * (LINE_WIDTH // 2 - 15)} 📚Goodbye! Keep on reading 📚 {'–' * (LINE_WIDTH // 2 - 15)}\033[0m"
+        f"\033[1;32m\n {'–' * (LINE_WIDTH // 2 - 16)} 📚Goodbye! Keep on reading 📚 {'–' * (LINE_WIDTH // 2 - 15)}\033[0m"
     )
     sys.exit()
 
@@ -110,7 +110,7 @@ def backup_db():
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     backup_path = os.path.join(backup_dir, f"backup_{timestamp}.db")
 
-    shutil.copy("books.db", backup_path)
+    shutil.copy("data/books.db", backup_path)
 
 
 def backup_cleanup(keep=5):

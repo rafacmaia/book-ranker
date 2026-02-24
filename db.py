@@ -1,8 +1,9 @@
 import sqlite3
+import state
 
 
 def get_connection():
-    return sqlite3.connect("books.db")
+    return sqlite3.connect(state.db_path)
 
 
 def init_db():

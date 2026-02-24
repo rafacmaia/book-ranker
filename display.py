@@ -38,14 +38,19 @@ def print_rankings(verbose=False):
     print_table(ranked_books, 0, batch_end, verbose)
 
     while batch_end < state.book_count:
-        selection = input(
+        choice = input(
             f"{' ' * (LINE_WIDTH - 25)}\033[1;33m See next {BATCH_SIZE} (y/n) > \033[0m"
         )
-        if selection.lower() == "y":
+        if choice.lower() == "y":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         else:
             break
+
+    choice = input(
+        f"{' ' * (LINE_WIDTH - 33)}\033[1;33m Main menu (m) or quit (q) > \033[0m"
+    )
+    return choice.lower()
 
 
 def print_table(books, start, end, verbose=False):

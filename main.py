@@ -1,4 +1,5 @@
 import os
+import sys
 
 from db import init_db
 from display import print_rankings, MAIN_MENU, LINE_WIDTH
@@ -42,6 +43,11 @@ def startup():
     # print(f"\033[1;32m{'|'*37}\033[0m")
     # print("\033[1;32m–––––––––––––––––––––––––––––––––––––\033[0m")
 
+    if state.db_path != "data/books.db":
+        print(
+            f"{' ' * (LINE_WIDTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
+        )
+
     # First run, no books in the system - prompt for CSV import
     if state.book_count == 0:
         print(" Your library is empty!")
@@ -57,14 +63,20 @@ def startup():
 def main_menu():
     while True:
         print(MAIN_MENU)
+        if state.db_path != "data/books.db":
+            print(
+                f"{' ' * (LINE_WIDTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
+            )
 
         choice = input("\n\033[1;33m > \033[0m").strip()
         if choice == "1":
             run()
         elif choice == "2":
-            print_rankings()
+            if print_rankings() == "q":
+                quit_game()
         elif choice == "2 -v":
-            print_rankings(verbose=True)
+            if print_rankings(verbose=True) == "q":
+                quit_game()
         elif choice == "3":
             print(" Please provide the path to your CSV book log to sync new books.")
             csv_reader()
@@ -79,6 +91,9 @@ def main_menu():
 
 
 if __name__ == "__main__":
+    if "--test" in sys.argv:
+        state.db_path = "data/test.db"
+
     init_db()
     state.books = Book.load_all()
     state.book_count = len(state.books)

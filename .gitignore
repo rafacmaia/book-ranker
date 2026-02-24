@@ -13,11 +13,12 @@ ENV/
 # IDE
 .idea/
 
-# Database
+# Data
 *.db
 *.sqlite
 *.sqlite3
 backup/
+data/book-log.csv
 
 # Distribution / packaging
 dist/
@@ -26,6 +27,3 @@ build/
 
 # Environment variables
 .env
-
-# Sample data
-sample-data/book-log.csv
