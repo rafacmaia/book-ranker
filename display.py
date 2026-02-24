@@ -65,12 +65,10 @@ def view_rankings(verbose=False):
 def print_table(books, start, end, verbose=False):
     opp_counts = get_unique_opponent_count()
 
-    table = Table(box=box.HORIZONTALS, border_style="blue")
-    table.add_column(
-        "#", justify="center", style="bold green", header_style="green", width=4
-    )
-    table.add_column("TITLE", justify="left", header_style="bold green", width=42)
-    table.add_column("AUTHOR", justify="left", header_style="bold green", width=27)
+    table = Table(box=box.HORIZONTALS, border_style="blue", width=LINE_LENGTH + 1)
+    table.add_column("#", justify="center", style="bold green", header_style="green")
+    table.add_column("TITLE", justify="left", header_style="bold green")
+    table.add_column("AUTHOR", justify="left", header_style="bold green")
     table.add_column("CONFIDENCE", justify="left", header_style="bold green")
 
     if verbose:
@@ -78,10 +76,14 @@ def print_table(books, start, end, verbose=False):
 
     for i, book in enumerate(books[start:end], start=start + 1):
         confidence = confidence_label(opp_counts.get(book.id, 0) / (len(books) - 1))
+
+        # For testing -- show exact confidence value
+        # confidence = round(opp_counts.get(book.id, 0) / (len(books) - 1), 2)
+
         if verbose:
             table.add_row(str(i), book.title, book.author, confidence, str(book.elo))
         else:
-            table.add_row(str(i), book.title, book.author, confidence)
+            table.add_row(str(i), book.title, book.author, str(confidence))
 
     Console().print(table)
 
