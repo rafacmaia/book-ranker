@@ -6,7 +6,7 @@ import state
 from db import get_unique_opponent_count
 
 LINE_LENGTH = 96  # 96 Keep it to an even number
-INITIAL_BATCH_SIZE = 50
+INITIAL_BATCH_SIZE = 100
 BATCH_SIZE = 50
 
 TEST_MESSAGE = (
@@ -83,7 +83,7 @@ def print_table(books, start, end, verbose=False):
         if verbose:
             table.add_row(str(i), book.title, book.author, confidence, str(book.elo))
         else:
-            table.add_row(str(i), book.title, book.author, str(confidence))
+            table.add_row(str(i), book.title, book.author, confidence)
 
     Console().print(table)
 
@@ -91,11 +91,11 @@ def print_table(books, start, end, verbose=False):
 def confidence_label(confidence):
     if confidence < 0.10:
         return "🔴 Very Low"
-    elif confidence < 0.25:
+    elif confidence < 0.20:
         return "🟠 Low"
-    elif confidence < 0.5:
+    elif confidence < 0.6:
         return "🟡 Moderate"
-    elif confidence < 0.75:
+    elif confidence < 0.8:
         return "🟢 High"
     else:
         return "✅ Very High"

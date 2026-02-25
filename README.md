@@ -79,12 +79,12 @@ favorite book of all time is. Those days are over!
    In the first run, you'll be prompted to import your book log from a CSV file.
 
 
-5. To run on sample data instead of your own library:
+5. To run on sample or test data instead of your own library:
    ```bash
    python main.py --test
    ```
-   A sample CSV with 20 books is included at [
-   `data/sample-books.csv`](data/sample-books.csv) to get you started.
+   *Note, a sample CSV with 20 books is included at [
+   `data/sample-books.csv`](data/sample-books.csv) to get you started.*
 
 ## 📃 CSV Format
 
@@ -108,16 +108,18 @@ Just Kids,Patti Smith,9
 Each book starts with an Elo score derived from your initial rating (1–10 scale, mapped
 to a range of 800–1200). Every time you pick one book over another, both scores are
 updated using the Elo formula. Books are then ranked by their Elo score and displayed
-with a confidence tier that tells you how much data is behind each position. The more
-confident the score, the less variability the ranking will have from then on.
+with a confidence tier indicating how much data is behind their current position. The Elo
+K value also adapts to confidence, so books with fewer matchups are more volatile at
+first, while well-matched books settle into stable rankings, unlikely to vary much over
+time.
 
 ### Confidence Tiers
 
 - 🔴 Very Low: fewer than 10% of possible matchups played
-- 🟠 Low: 10–25% of matchups played
-- 🟡 Moderate: 25–50% of matchups played
-- 🟢 High: 50–75% of matchups played
-- ✅ Very High: 75%+ of matchups played
+- 🟠 Low: 10–20% of matchups played
+- 🟡 Moderate: 20–60% of matchups played
+- 🟢 High: 60–80% of matchups played
+- ✅ Very High: 80%+ of matchups played
 
 ## 🗂️ Project Structure
 

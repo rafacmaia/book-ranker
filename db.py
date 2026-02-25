@@ -56,3 +56,24 @@ def get_unique_opponent_count():
         rows = cursor.fetchall()
 
     return {row["book_id"]: row["unique_opponents"] for row in rows}
+
+
+def get_past_opponents(book):
+    """Return a dictionary of opponent_id -> times matched against book."""
+    with get_connection() as conn:
+        cursor = conn.execute(
+            f"""
+            SELECT opponent_id, COUNT(opponent_id) AS matches_played 
+            FROM (
+                SELECT winner_id as book_id, loser_id as opponent_id FROM comparisons
+                UNION ALL
+                SELECT loser_id as book_id, winner_id as opponent_id FROM comparisons
+            )
+            WHERE book_id = ?
+            GROUP BY opponent_id
+        """,
+            (book.id,),
+        )
+        rows = cursor.fetchall()
+
+    return {row["opponent_id"]: row["matches_played"] for row in rows}

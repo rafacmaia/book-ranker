@@ -2,15 +2,15 @@ import random
 import textwrap
 
 import state
-from db import save_comparison, get_unique_opponent_count
+from db import save_comparison, get_unique_opponent_count, get_past_opponents
 from display import GAME_MENU, LINE_LENGTH
 
 
 def run_game():
     """Run the game's main loop.
 
-    Select two books for comparison, prompt user for selection, resolve the match, and
-    repeat until user stops.
+    Select two books for comparison, prompt the user for selection between the two,
+    resolve the match, and repeat until the user stops.
     """
     print(GAME_MENU)
 
@@ -47,22 +47,40 @@ def run_game():
 
 
 def select_opponents():
-    """Select two books using weighted random selection, favoring low-confidence books,
-    i.e., books with fewer unique matches played.
+    """Select two books using weighted random selection.
+
+    Favor low-confidence books, i.e., books with fewer unique matches played, and
+    books that have been matched against each other less often, to maximize information
+    gained from each match.
     """
-    opponent_count = get_unique_opponent_count()
+    unique_opponent_count = get_unique_opponent_count()
+
+    # Calculate weights based on confidence level, ensuring a minimum weight of 0.1
     weights = [
-        1 - (opponent_count.get(book.id, 0) / (state.book_count - 1))
+        max(0.1, 1 - (unique_opponent_count.get(book.id, 0) / (state.book_count - 1)))
         for book in state.books
     ]
 
-    # Avoid zero weights so books always have a minimum chance of being selected
-    weights = [max(w, 0.1) for w in weights]
-
     book_a = random.choices(state.books, weights=weights, k=1)[0]
-    remaining = [b for b in state.books if b.id != book_a.id]
-    remaining_weights = [w for b, w in zip(state.books, weights) if b.id != book_a.id]
-    book_b = random.choices(remaining, weights=remaining_weights, k=1)[0]
+    past_opponents = get_past_opponents(book_a)
+
+    # DEBUG MODE: Print number of past opponents
+    if state.debug:
+        print(f"\nDEBUG: {book_a.title} has {len(past_opponents)} past opponents")
+
+    # Exclude book_a from opponent selection
+    remaining_book_weights = [
+        (b, w) for b, w in zip(state.books, weights) if b.id != book_a.id
+    ]
+
+    # Adjust weights to account for opponents already matched against book_a
+    adjusted_weights = [
+        w / (1 + past_opponents.get(b.id, 0)) for (b, w) in remaining_book_weights
+    ]
+
+    book_b = random.choices(
+        [b for b, w in remaining_book_weights], weights=adjusted_weights, k=1
+    )[0]
 
     return book_a, book_b
 
@@ -92,7 +110,9 @@ def calculate_elo(winner, loser):
 
 
 def get_k(unique_opponents):
-    """Calculate k value based on count of unique opponents, i.e., confidence level."""
+    """Calculates and returns k value based on the percentage of unique opponents, i.e.,
+    confidence level.
+    """
     pct = unique_opponents / (state.book_count - 1)
     if pct < 0.20:
         return 40
