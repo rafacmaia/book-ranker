@@ -77,8 +77,9 @@ def print_table(books, start, end, verbose=False):
     for i, book in enumerate(books[start:end], start=start + 1):
         confidence = confidence_label(opp_counts.get(book.id, 0) / (len(books) - 1))
 
-        # For testing -- show exact confidence value
-        # confidence = round(opp_counts.get(book.id, 0) / (len(books) - 1), 2)
+        # DEBUG MODE: Print actual confidence value instead of label
+        if state.debug:
+            confidence = str(round(opp_counts.get(book.id, 0) / (len(books) - 1), 2))
 
         if verbose:
             table.add_row(str(i), book.title, book.author, confidence, str(book.elo))

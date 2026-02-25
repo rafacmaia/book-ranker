@@ -132,6 +132,8 @@ def backup_cleanup(keep=5):
 if __name__ == "__main__":
     if "--test" in sys.argv:
         state.db_path = "data/test.db"
+    if "--debug" in sys.argv:
+        state.debug = True
 
     init_db()
     state.books = Book.load_all()
