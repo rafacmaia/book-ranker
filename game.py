@@ -2,7 +2,7 @@ import random
 import textwrap
 
 import state
-from db import save_comparison, get_unique_opponent_count, get_past_opponents
+from db import save_comparison, get_opponent_counts, get_past_opponents
 from display import GAME_MENU, LINE_LENGTH
 
 
@@ -49,16 +49,15 @@ def run_game():
 def select_opponents():
     """Select two books using weighted random selection.
 
-    Favor low-confidence books, i.e., books with fewer unique matches played, and
-    books that have been matched against each other less often, to maximize information
-    gained from each match.
+    Favor low-confidence books, i.e., books with fewer unique matches played, books that
+    have been matched against each other less often, and books with similar Elo scores,
+    to maximize information gained from each match.
     """
-    unique_opponent_count = get_unique_opponent_count()
+    opponent_counts = get_opponent_counts()
 
-    # Calculate weights based on confidence level, ensuring a minimum weight of 0.1
+    # Calculate weights based on confidence level.
     weights = [
-        max(0.1, 1 - (unique_opponent_count.get(book.id, 0) / (state.book_count - 1)))
-        for book in state.books
+        confidence_weight(opponent_counts.get(book.id, 0)) for book in state.books
     ]
 
     book_a = random.choices(state.books, weights=weights, k=1)[0]
@@ -73,9 +72,13 @@ def select_opponents():
         (b, w) for b, w in zip(state.books, weights) if b.id != book_a.id
     ]
 
-    # Adjust weights to account for opponents already matched against book_a
+    # Adjust weights to prioritize books that have been matched against each other less
+    # often and that have more similar Elo scores.
+    # Rematch penalty: increase the divisor to penalize rematches more aggressively
+    # Elo gap penalty: increase the divisor (400) to soften, decrease to strengthen.
     adjusted_weights = [
-        w / (1 + past_opponents.get(b.id, 0)) for (b, w) in remaining_book_weights
+        w / (1 + past_opponents.get(b.id, 0)) / (1 + abs(book_a.elo - b.elo) / 400)
+        for (b, w) in remaining_book_weights
     ]
 
     book_b = random.choices(
@@ -83,6 +86,21 @@ def select_opponents():
     )[0]
 
     return book_a, book_b
+
+
+def confidence_weight(opponent_count):
+    """Calculate weight based on confidence level, ensuring a minimum weight of 0.1, and
+    highly prioritizing books with fewer than a threshold number of matches.
+    """
+    if opponent_count <= round(state.book_count * 0.05):
+        return 2
+    elif opponent_count <= round(state.book_count * 0.1):
+        return 1.5
+    else:
+        return max(
+            0.1,
+            1 - opponent_count / (state.book_count - 1),
+        )
 
 
 def format_book(book):
@@ -97,7 +115,7 @@ def resolve_comparison(winner, loser):
 
 
 def calculate_elo(winner, loser):
-    unique_opponents = get_unique_opponent_count()
+    unique_opponents = get_opponent_counts()
     winner_k = get_k(unique_opponents.get(winner.id, 0))
     loser_k = get_k(unique_opponents.get(loser.id, 0))
 

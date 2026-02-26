@@ -3,7 +3,7 @@ from rich.console import Console
 from rich.table import Table
 
 import state
-from db import get_unique_opponent_count
+from db import get_opponent_counts
 
 LINE_LENGTH = 96  # 96 Keep it to an even number
 INITIAL_BATCH_SIZE = 100
@@ -63,7 +63,7 @@ def view_rankings(verbose=False):
 
 
 def print_table(books, start, end, verbose=False):
-    opp_counts = get_unique_opponent_count()
+    opp_counts = get_opponent_counts()
 
     table = Table(box=box.HORIZONTALS, border_style="blue", width=LINE_LENGTH + 1)
     table.add_column("#", justify="center", style="bold green", header_style="green")

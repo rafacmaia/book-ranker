@@ -40,7 +40,8 @@ favorite book of all time is. Those days are over!
 - CSV import from your reading log (format: title, author, rating)
 - Book Arena: head-to-head book comparisons on loop
 - Elo-based ranking system with confidence tiers and variable K values
-- Smart matchmaking: books with lower confidence rating are prioritized
+- Smart matchmaking: prioritize books with lower confidence rating, similar Elo scores,
+  and unmatched pairs
 - Persistent rankings via SQLite to build accurate data over time
 - Confidence indicators in the ranking display
 - Add new books at any time
@@ -110,8 +111,8 @@ to a range of 800–1200). Every time you pick one book over another, both score
 updated using the Elo formula. Books are then ranked by their Elo score and displayed
 with a confidence tier indicating how much data is behind their current position. The Elo
 K value also adapts to confidence, so books with fewer matchups are more volatile at
-first, while well-matched books settle into stable rankings, unlikely to vary much over
-time.
+first, while well-matched books settle into stable rankings, unlikely to vary much more
+from then on.
 
 ### Confidence Tiers
 
@@ -135,7 +136,10 @@ time.
 
 ## 🗺️ Roadmap
 
-- [ ] Improve matchmaking (prioritize books with similar Elo scores)
+- [X] Track confidence tiers for Elo ratings to indicate the reliability of current
+  rankings
+- [X] Improve matchmaking (prioritize books with similar Elo scores, unmatched pairs,
+  and lower confidence ratings)
 - [ ] CSV export of final rankings
 - [ ] Handle tied Elo scores (e.g., by initial rating, head-to-head comparison, and
   confidence rating)

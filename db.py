@@ -41,7 +41,7 @@ def save_comparison(winner, loser):
         )
 
 
-def get_unique_opponent_count():
+def get_opponent_counts():
     """Return a dictionary of book_id -> count of unique opponents."""
     with get_connection() as conn:
         cursor = conn.execute("""
