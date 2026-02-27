@@ -45,6 +45,7 @@ favorite book of all time is. Those days are over!
 - Persistent rankings via SQLite to build accurate data over time
 - Confidence indicators in the ranking display
 - Add new books at any time
+- Export your rankings to CSV
 
 ## 📋 Requirements
 
@@ -124,15 +125,15 @@ from then on.
 
 ## 🗂️ Project Structure
 
-| File                         | Description                       |
-|------------------------------|-----------------------------------|
-| [`main.py`](main.py)         | Entry point and main menu         |
-| [`game.py`](game.py)         | Game loop and Elo logic           |
-| [`models.py`](models.py)     | Book class                        |
-| [`db.py`](db.py)             | Database setup and queries        |
-| [`importer.py`](importer.py) | CSV import logic                  |
-| [`display.py`](display.py)   | Rankings display and UI constants |
-| [`state.py`](state.py)       | Global state management           |
+| File                               | Description                       |
+|------------------------------------|-----------------------------------|
+| [`main.py`](main.py)               | Entry point and main menu         |
+| [`game.py`](game.py)               | Game loop and Elo logic           |
+| [`models.py`](models.py)           | Book class                        |
+| [`db.py`](db.py)                   | Database setup and queries        |
+| [`csv_handler.py`](csv_handler.py) | CSV import and export logic       |
+| [`display.py`](display.py)         | Rankings display and UI constants |
+| [`state.py`](state.py)             | Global state management           |
 
 ## 🗺️ Roadmap
 
@@ -140,7 +141,7 @@ from then on.
   rankings
 - [X] Improve matchmaking (prioritize books with similar Elo scores, unmatched pairs,
   and lower confidence ratings)
-- [ ] CSV export of final rankings
+- [X] CSV export of final rankings
 - [ ] Handle tied Elo scores (e.g., by initial rating, head-to-head comparison, and
   confidence rating)
 - [ ] Support for adding/removing individual books

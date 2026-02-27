@@ -4,11 +4,13 @@ import sys
 from datetime import datetime
 
 import state
+from csv_handler import import_from_csv, export_to_csv
 from db import init_db
 from display import view_rankings, MAIN_MENU, LINE_LENGTH, TEST_MESSAGE
 from game import run_game
-from importer import import_from_csv
 from models import Book
+
+MAX_OPTIONS = "5"
 
 
 def startup():
@@ -28,9 +30,11 @@ def startup():
 
     # First run, no books in the system - prompt for CSV import
     if state.book_count == 0:
-        print(" Your library is empty!")
-        print(" Please provide the path to a CSV file of your book log to get started.")
-        print(" It should have the following columns: 'title', 'author', 'rating'.\n")
+        print(
+            " Your library is empty!\n"
+            " Please provide the path to a CSV file of your book log to get started.\n"
+            " It should have the following columns: 'title', 'author', 'rating'.\n"
+        )
         csv_reader()
         state.books = Book.load_all()
         state.book_count = len(state.books)
@@ -46,19 +50,27 @@ def main_menu():
             print(TEST_MESSAGE)
 
         choice = input("\n\033[1;33m > \033[0m").strip()
+        next_action = ""
 
         if choice == "1":
-            if run_game() == "q":
-                quit_game()
+            next_action = run_game()
         elif choice in ("2", "2 -v"):
-            if view_rankings("-v" in choice) == "q":
-                quit_game()
+            next_action = view_rankings("-v" in choice)
         elif choice == "3":
             add_books()
         elif choice == "4":
+            export_to_csv()
+        elif choice == MAX_OPTIONS:
             quit_game()
         else:
-            print(" Invalid choice, I can only read options 1-4.")
+            print(
+                f"\033[31m Invalid choice, I can only read options 1-{MAX_OPTIONS}.\033[0m"
+            )
+
+        if next_action == "q":
+            quit_game()
+        if next_action == "e":
+            export_to_csv()
 
         print()
 
@@ -83,8 +95,8 @@ def csv_reader():
 
         if not filepath.endswith(".csv"):
             print(
-                " That doesn't look like a CSV. "
-                "Please provide the full path to your CSV file.\n"
+                " That doesn't look like a CSV."
+                " Please provide the full path to your CSV file.\n"
             )
             continue
 
@@ -104,8 +116,8 @@ def quit_game():
     backup_db()
     backup_cleanup()
     print(
-        f"\033[1;32m\n{'–' * (LINE_LENGTH // 2 - 15)} "
-        f"📚Goodbye! Keep on reading 📚 "
+        f"\n\033[1;32m{'–' * (LINE_LENGTH // 2 - 15)} "
+        f"📚 Goodbye! Keep on reading 📚 "
         f"{'–' * (LINE_LENGTH // 2 - 16)}\033[0m\n"
     )
     sys.exit()

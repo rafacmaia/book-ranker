@@ -17,7 +17,8 @@ MAIN_MENU = f"""\033[1;34m MAIN MENU {'–' * (LINE_LENGTH - 11)}\033[0m
  1. Play
  2. View Rankings
  3. Import New Books
- 4. Quit"""
+ 4. Export Rankings
+ 5. Quit"""
 
 GAME_MENU = f"""
 \033[1;34m BOOK ARENA {'–' * (LINE_LENGTH - 12)}\033[0m
@@ -46,20 +47,29 @@ def view_rankings(verbose=False):
 
     print_table(ranked_books, 0, batch_end, verbose)
 
-    while batch_end < state.book_count:
-        choice = input(
-            f"{' ' * (LINE_LENGTH - 25)}\033[33m See next {BATCH_SIZE} (y/n) > \033[0m"
+    while True:
+        if batch_end < state.book_count:
+            print(f"{' ' * (LINE_LENGTH - 23)}\033[33mn → See next {BATCH_SIZE}\033[0m")
+        print(
+            f"\033[0m{' ' * (LINE_LENGTH - 23)}b → Main menu\n"
+            f"{' ' * (LINE_LENGTH - 23)}e → Export rankings\n"
+            f"{' ' * (LINE_LENGTH - 23)}q → Quit\033[0m"
         )
-        if choice.lower() == "y":
+        choice = input(f"{' ' * (LINE_LENGTH - 5)}\033[33m> \033[0m").strip().lower()
+
+        while choice not in ("b", "e", "q"):
+            if batch_end < state.book_count and choice == "n":
+                break
+            choice = input(
+                f"{' ' * (LINE_LENGTH - 41)}"
+                f"\033[31m⚠️ Invalid choice, please try again > \033[0m"
+            )
+
+        if choice == "n":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         else:
-            return "n"
-
-    choice = input(
-        f"{' ' * (LINE_LENGTH - 33)}\033[33m Main menu (m) or quit (q) > \033[0m"
-    )
-    return choice.strip().lower()
+            return choice
 
 
 def print_table(books, start, end, verbose=False):

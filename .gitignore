@@ -19,6 +19,7 @@ ENV/
 *.sqlite3
 backup/
 data/book-log.csv
+exports/
 
 # Distribution / packaging
 dist/
