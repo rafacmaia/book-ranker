@@ -38,6 +38,7 @@ def view_rankings(verbose=False):
     option to view more books.
     """
     ranked_books = sorted(state.books, key=lambda book: book.elo, reverse=True)
+    opp_counts = get_opponent_counts()
     batch_end = INITIAL_BATCH_SIZE
 
     print(
@@ -46,7 +47,7 @@ def view_rankings(verbose=False):
         f"{'–' * (LINE_LENGTH // 2 - 10)}\033[0m",
     )
 
-    print_table(ranked_books, 0, batch_end, verbose)
+    print_table(ranked_books, 0, batch_end, opp_counts, verbose)
 
     while True:
         if batch_end < state.book_count:
@@ -68,14 +69,14 @@ def view_rankings(verbose=False):
 
         if choice == "n":
             batch_end += BATCH_SIZE
-            print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
+            print_table(
+                ranked_books, batch_end - BATCH_SIZE, batch_end, opp_counts, verbose
+            )
         else:
             return choice
 
 
-def print_table(books, start, end, verbose=False):
-    opp_counts = get_opponent_counts()
-
+def print_table(books, start, end, opp_counts, verbose=False):
     table = Table(box=box.HORIZONTALS, border_style="blue", width=LINE_LENGTH + 1)
     table.add_column("#", justify="center", style="bold green", header_style="green")
     table.add_column("TITLE", justify="left", header_style="bold green")
@@ -126,3 +127,32 @@ def confidence_label(confidence):
         return "🟢 High"
     else:
         return "✅ Very High"
+
+
+def calculate_rankings_confidence():
+    opp_counts = get_opponent_counts()
+    con_scores = [confidence_score(opp_counts.get(book.id, 0)) for book in state.books]
+    state.rankings_confidence = sum(con_scores) / len(con_scores)
+
+
+def progress_bar(pct, width):
+    filled = round(pct * width)
+    empty = width - filled
+    bar = "█" * filled + "░" * empty
+    pct_str = f"{pct * 100:3.0f}%"
+
+    # Make sure labels have an odd number of chars to fit the display better.
+    if pct < 0.2:
+        label = "🔴 JUST STARTING"
+    elif pct < 0.4:
+        label = "🟠 COOKING"
+    elif pct < 0.6:
+        label = "🟡 GETTING THERE"
+    elif pct < 0.8:
+        label = "🟢 WE'RE CLOSE"
+    elif pct < 0.95:
+        label = "✅ LOCKED IN"
+    else:
+        label = "✨ COMPLETE! ✨"
+
+    return f"{bar} {pct_str}  {label}"

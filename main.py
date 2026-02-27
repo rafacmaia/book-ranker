@@ -6,7 +6,15 @@ from datetime import datetime
 import state
 from csv_handler import import_from_csv, export_to_csv
 from db import init_db
-from display import view_rankings, MAIN_MENU, LINE_LENGTH, TEST_MESSAGE, MENU_OPTIONS
+from display import (
+    view_rankings,
+    progress_bar,
+    calculate_rankings_confidence,
+    MAIN_MENU,
+    LINE_LENGTH,
+    TEST_MESSAGE,
+    MENU_OPTIONS,
+)
 from game import run_game
 from models import Book
 
@@ -36,15 +44,21 @@ def startup():
         csv_reader()
         state.books = Book.load_all()
         state.book_count = len(state.books)
+    else:
+        calculate_rankings_confidence()
 
     main_menu()
 
 
 def main_menu():
     """Display the main menu and handle user input."""
-    print("RANKINGS PROGRESS: ")
-
     while True:
+        rankings_progress = (
+            f" CONFIDENCE: {progress_bar(state.rankings_confidence, 20)} "
+        )
+        padding = (LINE_LENGTH - len(rankings_progress) - 1) // 2
+        print(f" \033[1;33m{'–' * padding}{rankings_progress}{'–' * padding}\033[0m")
+
         print(MAIN_MENU)
 
         if state.db_path == "data/test.db":
@@ -55,6 +69,7 @@ def main_menu():
 
         if choice == "1":
             next_action = run_game()
+            calculate_rankings_confidence()
         elif choice in ("2", "2 -v"):
             next_action = view_rankings("-v" in choice)
         elif choice == "3":
@@ -132,7 +147,7 @@ def backup_db():
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     backup_path = os.path.join(backup_dir, f"backup_{timestamp}.db")
 
-    shutil.copy("data/books.db", backup_path)
+    shutil.copy(state.db_path, backup_path)
 
 
 def backup_cleanup(keep=5):
