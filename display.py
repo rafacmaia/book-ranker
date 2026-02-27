@@ -32,6 +32,13 @@ GAME_MENU = f"""
    q → Quits program
  Let's get started!"""
 
+CONFIDENCE_EXPLANATION = """ \033[3mConfidence levels\033[0m:
+    🔴 Very Low   — Early data, ranking mostly based on initial rating
+    🟠 Low        — Some data, broad tier is likely correct (top/mid/bottom)
+    🟡 Moderate   — General position is fairly reliable, exact rank still shifting
+    🟢 High       — Position is well established, likely within ~10 spots
+    ✅  Very High  — Locked in, unlikely to shift significantly"""
+
 
 def view_rankings(verbose=False):
     """Print the top-ranked books in the system, based on their Elo scores, with an
@@ -47,19 +54,22 @@ def view_rankings(verbose=False):
         f"{'–' * (LINE_LENGTH // 2 - 10)}\033[0m",
     )
 
+    print(CONFIDENCE_EXPLANATION)
+
     print_table(ranked_books, 0, batch_end, opp_counts, verbose)
 
     while True:
         if batch_end < state.book_count:
             print(f"{' ' * (LINE_LENGTH - 23)}\033[33mn → See next {BATCH_SIZE}\033[0m")
         print(
+            f"\033[0m{' ' * (LINE_LENGTH - 23)}? → Confidence explained\n"
             f"\033[0m{' ' * (LINE_LENGTH - 23)}b → Main menu\n"
             f"{' ' * (LINE_LENGTH - 23)}e → Export rankings\n"
             f"{' ' * (LINE_LENGTH - 23)}q → Quit\033[0m"
         )
         choice = input(f"{' ' * (LINE_LENGTH - 5)}\033[33m> \033[0m").strip().lower()
 
-        while choice not in ("b", "e", "q"):
+        while choice not in ("?", "b", "e", "q"):
             if batch_end < state.book_count and choice == "n":
                 break
             choice = input(
@@ -72,6 +82,9 @@ def view_rankings(verbose=False):
             print_table(
                 ranked_books, batch_end - BATCH_SIZE, batch_end, opp_counts, verbose
             )
+        elif choice == "?":
+            print(CONFIDENCE_EXPLANATION)
+            print()
         else:
             return choice
 
@@ -109,6 +122,10 @@ def confidence_score(unique_opp_count):
     to give a general position within the rankings. Relative score gives a more precise
     positioning.
     """
+    # Guard to prevent division by zero if there are zero or one books in the system.
+    if state.book_count <= 1:
+        return 0
+
     absolute_cap = state.book_count * 0.15
     absolute_score = min(unique_opp_count / absolute_cap, 1)
     relative_score = unique_opp_count / (state.book_count - 1)
