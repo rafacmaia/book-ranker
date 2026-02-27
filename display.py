@@ -6,6 +6,7 @@ import state
 from db import get_opponent_counts
 
 LINE_LENGTH = 96  # 96 Keep it to an even number
+MENU_OPTIONS = "5"
 INITIAL_BATCH_SIZE = 100
 BATCH_SIZE = 50
 
@@ -85,11 +86,12 @@ def print_table(books, start, end, verbose=False):
         table.add_column("ELO RATING", justify="left", header_style="bold green")
 
     for i, book in enumerate(books[start:end], start=start + 1):
-        confidence = confidence_label(opp_counts.get(book.id, 0) / (len(books) - 1))
+        con_score = confidence_score(opp_counts.get(book.id, 0))
+        confidence = confidence_label(con_score)
 
         # DEBUG MODE: Print actual confidence value instead of label
         if state.debug:
-            confidence = str(round(opp_counts.get(book.id, 0) / (len(books) - 1), 2))
+            confidence = str(round(con_score, 2))
 
         if verbose:
             table.add_row(str(i), book.title, book.author, confidence, str(book.elo))
@@ -99,10 +101,24 @@ def print_table(books, start, end, verbose=False):
     Console().print(table)
 
 
+def confidence_score(unique_opp_count):
+    """Return a confidence score based on the number of unique opponents faced.
+
+    Use a weighted combination of absolute and relative scores. Absolute score is enough
+    to give a general position within the rankings. Relative score gives a more precise
+    positioning.
+    """
+    absolute_cap = state.book_count * 0.15
+    absolute_score = min(unique_opp_count / absolute_cap, 1)
+    relative_score = unique_opp_count / (state.book_count - 1)
+
+    return absolute_score * 0.55 + relative_score * 0.45
+
+
 def confidence_label(confidence):
-    if confidence < 0.10:
+    if confidence < 0.1:
         return "🔴 Very Low"
-    elif confidence < 0.20:
+    elif confidence < 0.3:
         return "🟠 Low"
     elif confidence < 0.6:
         return "🟡 Moderate"

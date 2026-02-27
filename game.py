@@ -78,7 +78,7 @@ def select_opponents():
     # Rematch penalty: increase the divisor to penalize rematches more aggressively
     # Elo gap penalty: decrease the divisor (400 default) to narrow score range
     adjusted_weights = [
-        w / (1 + past_opponents.get(b.id, 0)) / (1 + abs(book_a.elo - b.elo) / 300)
+        w / (1 + past_opponents.get(b.id, 0)) / (1 + abs(book_a.elo - b.elo) / 250)
         for (b, w) in remaining_book_weights
     ]
 
@@ -135,10 +135,12 @@ def get_k(unique_opponents):
     pct = unique_opponents / (state.book_count - 1)
     if pct < 0.20:
         return 40
-    elif pct < 0.40:
+    elif pct < 0.50:
         return 30
-    else:
+    elif pct < 0.8:
         return 20
+    else:
+        return 10
 
 
 def expected_score(rating_a, rating_b):

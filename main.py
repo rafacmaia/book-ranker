@@ -6,11 +6,9 @@ from datetime import datetime
 import state
 from csv_handler import import_from_csv, export_to_csv
 from db import init_db
-from display import view_rankings, MAIN_MENU, LINE_LENGTH, TEST_MESSAGE
+from display import view_rankings, MAIN_MENU, LINE_LENGTH, TEST_MESSAGE, MENU_OPTIONS
 from game import run_game
 from models import Book
-
-MAX_OPTIONS = "5"
 
 
 def startup():
@@ -43,6 +41,9 @@ def startup():
 
 
 def main_menu():
+    """Display the main menu and handle user input."""
+    print("RANKINGS PROGRESS: ")
+
     while True:
         print(MAIN_MENU)
 
@@ -60,11 +61,12 @@ def main_menu():
             add_books()
         elif choice == "4":
             export_to_csv()
-        elif choice == MAX_OPTIONS:
+        elif choice == MENU_OPTIONS:
             quit_game()
         else:
             print(
-                f"\033[31m Invalid choice, I can only read options 1-{MAX_OPTIONS}.\033[0m"
+                f"\033[31m Invalid choice, "
+                f"I can only read options 1-{MENU_OPTIONS}.\033[0m"
             )
 
         if next_action == "q":
