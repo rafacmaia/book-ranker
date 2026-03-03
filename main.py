@@ -31,11 +31,12 @@ def startup():
         f"{'–' * (LINE_LENGTH // 2 - 6)}\033[0m"
     )
 
+    # Warn if running in test mode, which uses a separate test database
     if state.db_path == "data/test.db":
         print(TEST_MESSAGE)
 
     # First run, no books in the system - prompt for CSV import
-    if state.book_count == 0:
+    if state.b_count == 0:
         print(
             " Your library is empty!\n"
             " Please provide the path to a CSV file of your book log to get started.\n"
@@ -43,7 +44,7 @@ def startup():
         )
         csv_reader()
         state.books = Book.load_all()
-        state.book_count = len(state.books)
+        state.b_count = len(state.books)
     else:
         calculate_rankings_confidence()
 
@@ -97,7 +98,7 @@ def add_books():
     print(" Please provide the path to your CSV book log to sync new books.")
     csv_reader()
     state.books = Book.load_all()
-    state.book_count = len(state.books)
+    state.b_count = len(state.books)
 
 
 def export_rankings():
@@ -125,17 +126,21 @@ def export_rankings():
     choice = input("\033[33m > Proceed with export? (y/n) \033[0m").strip().lower()
     if choice == "y":
         export_to_csv()
-        print("\033[33m > \033[0mReturning to main menu...")
     elif choice != "n":
         print("\033[31m Invalid choice, returning to main menu.\033[0m")
 
 
 def csv_reader():
     while True:
-        filepath = input(" CSV file path (b to go back): ").strip()
-        if filepath == "b":
-            print()
-            break
+        if state.books:
+            filepath = input(" CSV file path (b to go back): ").strip()
+            if filepath == "b":
+                print()
+                break
+        else:
+            filepath = input(" CSV file path (q to quit): ").strip()
+            if filepath == "q":
+                quit_game()
 
         if not (filepath and os.path.exists(filepath)):
             print(" Invalid path. Please try again.\n")
@@ -161,8 +166,9 @@ def csv_reader():
 
 
 def quit_game():
-    backup_db()
-    backup_cleanup()
+    if state.books:
+        backup_db()
+        backup_cleanup()
     print(
         f"\n\033[1;32m{'–' * (LINE_LENGTH // 2 - 15)} "
         f"📚 Goodbye! Keep on reading 📚 "
@@ -197,5 +203,5 @@ if __name__ == "__main__":
 
     init_db()
     state.books = Book.load_all()
-    state.book_count = len(state.books)
+    state.b_count = len(state.books)
     startup()

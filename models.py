@@ -76,7 +76,7 @@ def rating_to_elo(rating):
     """Maps a rating (1-10) to an initial Elo score.
 
     If scores are still within the initial 800-1200 range, use that default mapping.
-    Otherwise, map to the current elo_min-elo_max distribution.
+    Otherwise, adjust the lower and upper bounds to match the current bounds.
     """
     elo_min = Book.elo_min if Book.elo_min < 800 else 800
     elo_max = Book.elo_max if Book.elo_max > 1200 else 1200

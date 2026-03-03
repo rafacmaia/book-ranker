@@ -33,9 +33,9 @@ def init_db():
         """)
 
 
-def save_comparison(winner, loser):
+def save_comparison(winner_id, loser_id):
     with get_connection() as conn:
         conn.execute(
             "INSERT INTO comparisons (winner_id, loser_id) VALUES (?, ?)",
-            (winner, loser),
+            (winner_id, loser_id),
         )

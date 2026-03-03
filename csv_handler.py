@@ -11,7 +11,7 @@ def import_from_csv(filepath):
 
     Return count of new books imported.
     """
-    existing_books = {(b.title.lower(), b.author.lower()) for b in Book.load_all()}
+    existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
     new_books = 0
 
     try:

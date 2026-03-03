@@ -7,7 +7,7 @@ from ranking import confidence_score, get_k, cluster_density
 
 LINE_LENGTH = 96  # 96 Keep it to an even number
 MENU_OPTIONS = "5"
-INITIAL_BATCH_SIZE = 100
+INITIAL_BATCH_SIZE = 50
 BATCH_SIZE = 50
 
 TEST_MESSAGE = (
@@ -58,7 +58,7 @@ def view_rankings(verbose=False):
     print_table(ranked_books, 0, batch_end, verbose)
 
     while True:
-        if batch_end < state.book_count:
+        if batch_end < state.b_count:
             print(f"{' ' * (LINE_LENGTH - 23)}\033[33mn → See next {BATCH_SIZE}\033[0m")
         print(
             f"\033[0m{' ' * (LINE_LENGTH - 23)}? → Confidence explained\n"
@@ -69,7 +69,7 @@ def view_rankings(verbose=False):
         choice = input(f"{' ' * (LINE_LENGTH - 5)}\033[33m> \033[0m").strip().lower()
 
         while choice not in ("?", "b", "e", "q"):
-            if batch_end < state.book_count and choice == "n":
+            if batch_end < state.b_count and choice == "n":
                 break
             choice = input(
                 f"{' ' * (LINE_LENGTH - 41)}"
@@ -96,7 +96,7 @@ def print_table(books, start, end, verbose=False):
     if verbose:
         table.add_column("ELO RATING", justify="left", header_style="bold green")
         table.add_column("K", justify="left", header_style="bold green")
-        table.add_column("DENSITY", justify="left", header_style="bold green")
+        table.add_column("STABILITY", justify="left", header_style="bold green")
 
     for i, book in enumerate(books[start:end], start=start + 1):
         con_score = confidence_score(book)
@@ -109,7 +109,7 @@ def print_table(books, start, end, verbose=False):
         if verbose:
             elo = str(book.elo)
             k = str(get_k(book))
-            density = str(1 - cluster_density(book))
+            density = f"{1 - cluster_density(book):.2f}"
             table.add_row(str(i), book.title, book.author, confidence, elo, k, density)
         else:
             table.add_row(str(i), book.title, book.author, confidence)

@@ -94,13 +94,13 @@ def sampling_weight(book):
     """Calculate selection weight based on confidence level, ensuring a minimum weight
     of 0.1, and highly prioritizing books with fewer than a threshold number of matches.
     """
-    if state.book_count <= 1:
+    if state.b_count <= 1:
         return 1
 
-    total_opponents = state.book_count - 1
+    total_opponents = state.b_count - 1
     faced_opponents = len(book.opponents)
 
-    early_boost = 2.5 * (0.5 ** (faced_opponents / (total_opponents * 0.1)))
+    early_boost = 2.5 * (0.4 ** (faced_opponents / (total_opponents * 0.1)))
     confidence_weight = 1 - confidence_score(book)
     return max(0.1, confidence_weight, early_boost)
 
@@ -114,7 +114,7 @@ def resolve_comparison(winner, loser):
     save_comparison(winner.id, loser.id)
 
     winner.update_elo(new_winner_elo)
-    winner.record_opponent(loser.id)
-
     loser.update_elo(new_loser_elo)
+
+    winner.record_opponent(loser.id)
     loser.record_opponent(winner.id)

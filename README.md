@@ -42,14 +42,14 @@ favorite book of all time is. Those days are over!
 - Elo-based ranking system with confidence tiers and variable K values
 - Smart matchmaking: prioritize books with lower confidence rating, similar Elo
   scores, and unmatched pairs
-- Sophisticated confidence calculation to measure both individual and overall confidence
+- Multifactor confidence scoring: measures both individual and overall confidence
   in rankings
 - Persistent rankings via SQLite to build accurate data over time
 - Add new books at any time: New books are mapped into the current Elo range based on
   their original rating, ensuring intelligent initial positioning before the game can
   refine it.
 - Confidence and matchmaking algorithms are optimized to avoid full pairwise comparisons,
-  allowing the system to scale efficiently.
+  allowing the system to scale efficiently to libraries of 2500+ books.
 - Export your rankings to CSV
 
 _See the [How it Works](#-how-it-works) section below for more details._
