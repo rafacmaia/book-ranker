@@ -1,4 +1,6 @@
 import state
+from models import Book
+from utils import style, progress_bar
 
 # --- ELO SCORE CALCULATIONS ---
 
@@ -36,7 +38,7 @@ def get_k(book):
         return 10
 
 
-# --- RANKING CALCULATIONS ---
+# --- CONFIDENCE SCORE CALCULATIONS ---
 
 
 def calculate_rankings_confidence():
@@ -82,7 +84,32 @@ def confidence_score(book):
 
 def cluster_density(book):
     tight_neighbors = sum(
-        1 for opp in state.books if opp.id != book.id and abs(book.elo - opp.elo) < 30
+        1 for opp in state.books if opp.id != book.id and abs(book.elo - opp.elo) < 28
     )
 
-    return min(tight_neighbors / 10, 1)
+    upper_proximity = max(0, 1 - (Book.elo_max - book.elo) / 28)
+    lower_proximity = max(0, 1 - (book.elo - Book.elo_min) / 28)
+    edge_factor = 1 + max(upper_proximity, lower_proximity)
+
+    return min((tight_neighbors * edge_factor) / 10, 1)
+
+
+def confidence_summary(pct, color="bold green"):
+    summary = f" Current confidence: {style(progress_bar(pct, 25), color)}\n"
+
+    if pct < 0.2:
+        summary += " Not much data yet, ranking mostly based on initial ratings."
+    elif pct < 0.4:
+        summary += (
+            " Still early stages, but broad tiers (top/mid/bottom) likely correct."
+        )
+    elif pct < 0.6:
+        summary += " General positions are fairly reliable, exact ranks still shifting."
+    elif pct < 0.8:
+        summary += " Positions are well established, likely within ~10 spots."
+    elif pct < 0.95:
+        summary += " Rankings are locked in, unlikely to shift significantly."
+    else:
+        summary += " Absolute ranking of all books established!"
+
+    return summary

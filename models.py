@@ -36,6 +36,9 @@ class Book:
 
     @classmethod
     def load_all(cls):
+        cls.elo_min = 800
+        cls.elo_max = 1200
+
         with get_connection() as conn:
             cursor = conn.execute("SELECT title, author, rating, elo, id FROM books")
             rows = cursor.fetchall()

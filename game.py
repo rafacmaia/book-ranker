@@ -2,9 +2,10 @@ import random
 import textwrap
 
 import state
+from constants import LINE_LENGTH, SUBHEADER, DIVIDER, ARENA_HEADER
 from db import save_comparison
-from display import GAME_MENU, LINE_LENGTH, PROMPT
-from ranking import calculate_elo, confidence_score
+from scoring import calculate_elo, confidence_score
+from utils import PROMPT, rule, style
 
 
 def run_game():
@@ -13,7 +14,9 @@ def run_game():
     Select two books for comparison, prompt the user for selection between the two,
     resolve the match, and repeat until the user stops.
     """
-    print(GAME_MENU)
+    print()
+    print(ARENA_HEADER, end="")
+    input()
 
     match_count = 0
 
@@ -21,29 +24,30 @@ def run_game():
         book_a, book_b = select_opponents()
         match_count += 1
 
+        print()
         print(
-            f"\n\033[1;36m {'–' * (LINE_LENGTH - 5 - len(str(match_count)))}"
-            f" {match_count} ––\033[0m"
+            f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
+            f" {style(match_count, DIVIDER)}"
+            f" {rule(2, DIVIDER)}"
         )
         print(
-            f"\033[1;33m Which means more to you?\033[0m\n"
-            f"   \033[1;33m1.\033[0m {format_book(book_a)}\n"
-            f"   \033[1;33m2.\033[0m {format_book(book_b)}"
+            f" {style("Which means more to you?", SUBHEADER)}\n"
+            f"   {style("1.", SUBHEADER)} {format_book(book_a)}\n"
+            f"   {style("2.", SUBHEADER)} {format_book(book_b)}"
         )
 
         choice = input(PROMPT).strip().lower()
 
         while choice not in ("1", "2", "b", "q"):
             print(
-                f"{PROMPT}\033[31mInvalid choice - "
-                "try '1', '2', 'b', or 'q' to quit.\033[0m"
+                f"{PROMPT}"
+                # f"{style("Invalid choice! Options are: '1'  '2'  'b'  'q'", "red")}"
+                f"{style("Sorry, I can only understand options: 1, 2, b, or q", "red")}"
             )
             choice = input(PROMPT).strip().lower()
 
-        if choice == "q":
-            return "q"
-        elif choice == "b":
-            return "b"
+        if choice in ["q", "b"]:
+            return choice
         elif choice == "1":
             resolve_comparison(winner=book_a, loser=book_b)
         elif choice == "2":
@@ -107,7 +111,7 @@ def sampling_weight(book):
 
 
 def format_book(book):
-    return textwrap.fill(str(book), width=LINE_LENGTH - 6, subsequent_indent="\t")
+    return textwrap.fill(str(book), width=LINE_LENGTH - 7, subsequent_indent="\t")
 
 
 def resolve_comparison(winner, loser):

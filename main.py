@@ -3,22 +3,32 @@ import shutil
 import sys
 from datetime import datetime
 
+from rich.console import Console
+
+import constants
 import state
+from constants import (
+    LINE_LENGTH,
+    QUIT_OPTION,
+    ACCENT,
+    TITLE,
+    GOODBYE,
+    TEST_MESSAGE,
+    MAIN_MENU,
+    IMPORT_HEADER,
+    EXPORT_HEADER,
+)
 from csv_handler import export_to_csv, csv_reader
 from db import init_db
-from display import (
-    view_rankings,
-    progress_bar,
-    prompt,
-    MAIN_MENU,
-    LINE_LENGTH,
-    TEST_MESSAGE,
-    MENU_OPTIONS,
-    PROMPT,
-)
 from game import run_game
 from models import Book
-from ranking import calculate_rankings_confidence
+from rankings import (
+    view_rankings,
+)
+from scoring import calculate_rankings_confidence, confidence_summary
+from utils import prompt, style, PROMPT, rule, progress_bar
+
+console = Console(width=LINE_LENGTH)
 
 
 def startup():
@@ -27,11 +37,8 @@ def startup():
     If no books are in the system, prompt the user to import from a CSV.
     """
     os.system("cls" if os.name == "nt" else "clear")
-    print(
-        f"\n\033[1;32m{'–' * (LINE_LENGTH // 2 - 7)} "
-        f"BOOK RANKER "
-        f"{'–' * (LINE_LENGTH // 2 - 6)}\033[0m"
-    )
+    print()
+    print(TITLE)
 
     # Warn if running in test mode, which uses a separate test database
     if state.db_path == "data/test.db":
@@ -56,12 +63,17 @@ def startup():
 def main_menu():
     """Display the main menu and handle user input."""
     while True:
-        rankings_progress = (
-            f" CONFIDENCE: {progress_bar(state.rankings_confidence, 20)} "
+        confidence_progress = (
+            f"  CONFIDENCE: {progress_bar(state.rankings_confidence, 20)}  "
         )
-        padding = (LINE_LENGTH - len(rankings_progress) - 1) // 2
-        print(f" \033[1;33m{'–' * padding}{rankings_progress}{'–' * padding}\033[0m")
+        padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
 
+        print(
+            f" {rule(padding, ACCENT)}"
+            # f" {' ' * padding}"
+            f"{style(confidence_progress, ACCENT)}"
+            f"{rule(padding, ACCENT)}"
+        )
         print(MAIN_MENU)
 
         if state.db_path == "data/test.db":
@@ -69,8 +81,8 @@ def main_menu():
 
         print()
         choice = prompt(
-            {"1", "2", "2 -v", "3", "4", MENU_OPTIONS},
-            f"Invalid choice, I can only read options 1-{MENU_OPTIONS}.",
+            {"1", "2", "2 -v", "3", "4", QUIT_OPTION},
+            f"Invalid choice, I can only read options 1-{QUIT_OPTION}.",
         )
         next_action = ""
 
@@ -84,7 +96,7 @@ def main_menu():
             calculate_rankings_confidence()
         elif choice == "4":
             export_rankings()
-        elif choice == MENU_OPTIONS:
+        elif choice == QUIT_OPTION:
             quit_game()
 
         if next_action == "q":
@@ -97,19 +109,19 @@ def main_menu():
 
 def add_books():
     print()
-    print(f"\033[1;34m IMPORT NEW BOOKS {'–' * (LINE_LENGTH - 18)}\033[1;0m")
+    print(IMPORT_HEADER)
 
-    if len(state.books) >= state.BOOK_LIMIT:
+    if len(state.books) >= constants.BOOK_LIMIT:
         print(
             f"\033[31m Sorry, you read way too much "
-            f"and reached the limit of {state.BOOK_LIMIT} books.\n"
+            f"and reached the limit of {constants.BOOK_LIMIT} books.\n"
             f" I can't handle any more 😭.\033[0m"
         )
         return
     print(" Please provide the path to your CSV book log to sync new books.")
     print()
 
-    response = csv_reader(prompt=" CSV file path (b to go back): ", options=["b"])
+    response = csv_reader(prompt=f" CSV file path (b to go back): ", options=["b"])
     if response == "b":
         return
     added, interrupted = response
@@ -129,7 +141,7 @@ def add_books():
             f"{PROMPT}\033[31mWarning: \033[0mBook limit reached during import, "
             "not all books were added."
         )
-    elif len(state.books) >= state.BOOK_LIMIT:
+    elif len(state.books) >= constants.BOOK_LIMIT:
         print(
             f"{PROMPT}\033[31mWarning: \033[0mBook limit reached, no more books can be added!"
         )
@@ -137,31 +149,16 @@ def add_books():
 
 def export_rankings():
     print()
-    print(f"\033[1;34m EXPORT RANKINGS {'–' * (LINE_LENGTH - 17)}\033[1;0m")
-    print(
-        f" Current progress: "
-        f"\033[1;32m{progress_bar(state.rankings_confidence, 20)}\033[0m"
-    )
-
-    if state.rankings_confidence < 0.2:
-        print(" Not much data yet, ranking mostly based on initial ratings.")
-    elif state.rankings_confidence < 0.4:
-        print(" Still early stages, but broad tiers (top/mid/bottom) likely correct.")
-    elif state.rankings_confidence < 0.6:
-        print(" General positions are fairly reliable, exact ranks still shifting.")
-    elif state.rankings_confidence < 0.8:
-        print(" Positions are well established, likely within ~10 spots.")
-    elif state.rankings_confidence < 0.95:
-        print(" Rankings are locked in, unlikely to shift significantly.")
-    else:
-        print(" Absolute ranking of all books established. Export with confidence!")
+    print(EXPORT_HEADER)
+    print(confidence_summary(state.rankings_confidence, constants.HEADER))
 
     print()
-    print(f" \033[33mProceed with export (y/n)?\033[0m")
+    print(f" Proceed with export (y/n)?")
     choice = prompt({"y", "n"}, "Sorry, I can only understand 'y' or 'n'.")
 
     if choice == "y":
         export_to_csv()
+    input(f"{PROMPT}Press Enter to return to the main menu... ")
 
 
 # --- QUITTING AND BACKUPS  ---
@@ -172,11 +169,7 @@ def quit_game():
         backup_db()
         backup_cleanup()
     print()
-    print(
-        f"\033[1;32m{'–' * (LINE_LENGTH // 2 - 16)}"
-        f" 📚 Goodbye! Keep on reading 📚 "
-        f"{'–' * (LINE_LENGTH // 2 - 16)}\033[0m"
-    )
+    print(GOODBYE)
     print()
     sys.exit()
 
@@ -195,7 +188,7 @@ def backup_cleanup():
     """Only keep the last N backups."""
     backup_dir = "backup"
     backups = sorted(os.listdir(backup_dir))
-    for old in backups[: -state.BACKUPS_LIMIT]:
+    for old in backups[: -constants.BACKUPS_LIMIT]:
         os.remove(os.path.join(backup_dir, old))
 
 

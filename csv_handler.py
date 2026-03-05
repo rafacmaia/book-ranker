@@ -2,9 +2,10 @@ import csv
 import os
 from datetime import datetime
 
+import constants
 import state
-from display import PROMPT
 from models import Book
+from utils import PROMPT
 
 
 def csv_reader(prompt=" CSV file path: ", options=None):
@@ -45,7 +46,7 @@ def import_from_csv(filepath):
             reader = csv.DictReader(file)
             reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
             for row in reader:
-                if len(state.books) + new_books >= state.BOOK_LIMIT:
+                if len(state.books) + new_books >= constants.BOOK_LIMIT:
                     interrupted = True
                     return new_books, interrupted
 
@@ -72,12 +73,15 @@ def import_from_csv(filepath):
                     new_books += 1
 
     except FileNotFoundError:
-        print(f"\033[31m Error! Couldn't find file at:\033[0m \n {PROMPT}{filepath}")
+        print(
+            f"{PROMPT}\033[31mError! Couldn't find file at:\033[0m "
+            f"\n {PROMPT}{filepath}"
+        )
         return 0, interrupted
     except KeyError as e:
         print(
-            f"\033[31m Error! Missing column '{e}' in CSV file. Expected columns:"
-            f" \033[33m title\033[0m,\033[33m author\033[0m,\033[33m rating\033[0m."
+            f"{PROMPT}\033[31mError! Missing column \033[33m{e}\033[31m in CSV file. Expected columns:"
+            f" \033[33m title\033[31m,\033[33m author\033[31m,\033[33m rating\033[31m."
         )
         return 0, interrupted
 
