@@ -23,6 +23,9 @@ favorite book of all time is. Those days are over!
 <details>
 <summary><b>&nbsp;Screenshots of latest version</b></summary>
 
+<h3>Main Menu:</h3>
+<img src="screenshots/main-menu-1.png" alt="Main Menu">
+
 <h3>Book Arena:</h3>
 <img src="screenshots/game-arena-1.png" alt="Game Arena Start">
 <img src="screenshots/game-arena-2.png" alt="Game Arena ongoing comparisons">
@@ -31,6 +34,9 @@ favorite book of all time is. Those days are over!
 <h3>View Rankings:</h3>
 <img src="screenshots/rankings-1.png" alt="Rankings display 1">
 <img src="screenshots/rankings-2.png" alt="Rankings display 2">
+
+<h3>Export Rankings:</h3>
+<img src="screenshots/export-rankings-1.png" alt="Export Rankings">
 
 
 </details>
@@ -190,16 +196,18 @@ mathematically robust, way to reflect on their books.
 
 ## 🗂️ Project Structure
 
-| File                               | Description                                                   |
-|------------------------------------|---------------------------------------------------------------|
-| [`main.py`](main.py)               | Entry point and main menu                                     |
-| [`game.py`](game.py)               | Game loop and matchmaking logic                               |
-| [`models.py`](models.py)           | Book class                                                    |
-| [`db.py`](db.py)                   | Database setup and queries                                    |
-| [`csv_handler.py`](csv_handler.py) | CSV import and export logic                                   |
-| [`display.py`](display.py)         | Rankings display and UI constants                             |
-| [`state.py`](state.py)             | Global state management                                       |
-| [`ranking.py`](ranking.py)         | Mathematical calculations of Elo scores and confidence levels |
+| File                               | Description                           |
+|------------------------------------|---------------------------------------|
+| [`main.py`](main.py)               | Entry point and main menu             |
+| [`game.py`](game.py)               | Game loop and matchmaking logic       |
+| [`scoring.py`](scoring.py)         | Elo and confidence level calculations |
+| [`rankings.py`](rankings.py)       | Rankings display and table rendering  |
+| [`models.py`](models.py)           | Book class                            |
+| [`db.py`](db.py)                   | Database setup and queries            |
+| [`csv_handler.py`](csv_handler.py) | CSV import and export handling        |
+| [`constants.py`](constants.py)     | UI strings and layout values          |
+| [`utils.py`](utils.py)             | Styling utilities                     |
+| [`state.py`](state.py)             | Global state management               |
 
 ## 🗺️ Roadmap
 
