@@ -27,7 +27,7 @@ def view_rankings(verbose=False):
     """Print the top-ranked books in the system, based on their Elo scores, with an
     option to view more books.
     """
-    ranked_books = sorted(state.books, key=lambda book: book.elo, reverse=True)
+    ranked_books = rank_books()
     batch_end = INITIAL_BATCH_SIZE
 
     print()
@@ -51,6 +51,28 @@ def view_rankings(verbose=False):
             print(CONFIDENCE_TIERS)
         else:
             return next_action
+
+
+def rank_books():
+    sorted_books = sorted(state.books, key=lambda book: book.elo, reverse=True)
+
+    ranked_books = []
+    previous_rank = 0
+    for i, b in enumerate(sorted_books, start=1):
+        rank = str(i) if i == 1 or sorted_books[i - 2].elo != b.elo else previous_rank
+
+        previous_rank = rank
+
+        is_tied = (i != len(sorted_books) and b.elo == sorted_books[i].elo) or (
+            i > 1 and sorted_books[i - 2].elo == b.elo
+        )
+
+        if is_tied:
+            rank += "~"
+
+        ranked_books.append((rank, b))
+
+    return ranked_books
 
 
 def print_table(books, start, end, verbose=False):
@@ -79,7 +101,7 @@ def add_columns(table, verbose):
 
 
 def add_rows(table, books, start, end, verbose):
-    for i, b in enumerate(books[start:end], start=start + 1):
+    for rank, b in books[start:end]:
         con_score = confidence_score(b)
         confidence = confidence_label(con_score)
 
@@ -89,7 +111,7 @@ def add_rows(table, books, start, end, verbose):
 
         if verbose:
             table.add_row(
-                str(i),
+                str(rank),
                 b.title,
                 b.author,
                 f"{con_score:.2f}",
@@ -100,7 +122,7 @@ def add_rows(table, books, start, end, verbose):
                 f"{stability_score(b):.2f}",
             )
         else:
-            table.add_row(str(i), b.title, b.author, confidence)
+            table.add_row(str(rank), b.title, b.author, confidence)
 
 
 def confidence_label(confidence):
