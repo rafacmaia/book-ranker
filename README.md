@@ -56,6 +56,8 @@ favorite book of all time is. Those days are over!
   refine it.
 - Confidence and matchmaking algorithms are optimized to avoid full pairwise comparisons,
   allowing the system to scale efficiently to libraries of 2500+ books.
+- Tied rankings are broken by head-to-head wins, then by initial rating, with a visual
+  indicator (`~`) for unresolvable ties.
 - Export your rankings to CSV
 
 _See the [How it Works](#-how-it-works) section below for more details._
@@ -225,8 +227,7 @@ mathematically robust, way to reflect on their books.
 - [X] Improve matchmaking (prioritize books with similar Elo scores, unmatched pairs,
   and lower confidence ratings)
 - [X] CSV export of final rankings
-- [ ] Handle tied Elo scores (e.g., by initial rating, head-to-head comparison, and
-  confidence rating)
+- [X] Handle tied Elo scores (e.g., by head-to-head comparison and initial rating)
 - [ ] Support for adding/removing individual books
 - [ ] Undo option for mistakes (track and undo the last 1–3 face-offs)
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")

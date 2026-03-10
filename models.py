@@ -11,7 +11,8 @@ class Book:
         self.author = author
         self.rating = rating
         self.elo = elo if elo is not None else rating_to_elo(rating)
-        self.opponents = {}  # {opp_id: times_matched}
+        self.opponents = {}  # {opp_id: times_matched} - used for confidence scoring
+        self.won_over = {}  # {opp_id: times_won_over} - used for tiebreaking
 
     def save(self):
         with get_connection() as conn:
@@ -33,6 +34,9 @@ class Book:
 
     def record_opponent(self, opponent_id):
         self.opponents[opponent_id] = self.opponents.get(opponent_id, 0) + 1
+
+    def record_won_over(self, opponent_id):
+        self.won_over[opponent_id] = self.won_over.get(opponent_id, 0) + 1
 
     @classmethod
     def load_all(cls):
@@ -68,6 +72,7 @@ class Book:
                 w_id, l_id = row["winner_id"], row["loser_id"]
                 book_map[w_id].record_opponent(l_id)
                 book_map[l_id].record_opponent(w_id)
+                book_map[w_id].record_won_over(l_id)
 
         return books
 

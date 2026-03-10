@@ -2,10 +2,10 @@ import random
 import textwrap
 
 import state
-from constants import LINE_LENGTH, SUBHEADER, DIVIDER, ARENA_HEADER
+from constants import ARENA_HEADER, DIVIDER, LINE_LENGTH, SUBHEADER
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from utils import rule, style, prompt
+from utils import prompt, rule, style
 
 
 def run_game():
@@ -117,6 +117,8 @@ def resolve_comparison(winner, loser):
 
     winner.record_opponent(loser.id)
     loser.record_opponent(winner.id)
+
+    winner.record_won_over(loser.id)
 
 
 def format_book(book):
