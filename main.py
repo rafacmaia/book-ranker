@@ -18,7 +18,7 @@ from constants import (
     TEST_MESSAGE,
     TITLE,
 )
-from csv_handler import csv_reader, export_to_csv
+from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db import init_db
 from game import run_game
 from models import Book
@@ -52,11 +52,10 @@ def startup():
             " It should have the following columns:"
             "\033[33m title\033[0m,\033[33m author\033[0m, \033[33m rating\033[0m.\n"
         )
-        response = (
-            csv_reader(prompt=" CSV file path (q to quit): ", options=["q"]) == "q"
-        )
+        response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
         if response == "q":
             quit_game()
+        import_from_csv(response)
         state.books = Book.load_all()
         print()
     else:
@@ -125,10 +124,11 @@ def add_books():
     print(" Please provide the path to your CSV book log to sync new books.")
     print()
 
-    response = csv_reader(prompt=" CSV file path (b to go back): ", options=["b"])
+    response = csv_reader(prompt=" CSV file path (b to go back): ", back_key="b")
     if response == "b":
         return
-    added, interrupted = response
+
+    added, interrupted = import_from_csv(response)
 
     if added > 0:
         plural = "s" if added > 1 else ""
@@ -147,7 +147,8 @@ def add_books():
         )
     elif len(state.books) >= constants.BOOK_LIMIT:
         print(
-            f"{PROMPT}\033[31mWarning: \033[0mBook limit reached, no more books can be added!"
+            f"{PROMPT}\033[31mWarning: \033[0m"
+            f"Book limit reached, no more books can be added!"
         )
 
 

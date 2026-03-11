@@ -8,14 +8,11 @@ from models import Book
 from utils import PROMPT
 
 
-def csv_reader(prompt=" CSV file path: ", options=None):
-    if options is None:
-        options = ["q"]
-
+def csv_reader(prompt=" CSV file path: ", back_key="q"):
     print(prompt)
     while True:
         filepath = input(PROMPT).strip()
-        if filepath in options:
+        if filepath == back_key:
             return filepath
 
         if not (filepath and os.path.exists(filepath)):
@@ -29,7 +26,7 @@ def csv_reader(prompt=" CSV file path: ", options=None):
             )
             continue
 
-        return import_from_csv(filepath)
+        return filepath
 
 
 def import_from_csv(filepath):

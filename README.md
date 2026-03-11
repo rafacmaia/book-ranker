@@ -45,6 +45,7 @@ favorite book of all time is. Those days are over!
 
 - CSV import from your reading log (format: title, author, rating)
 - Book Arena: head-to-head book comparisons on loop
+- Undo option: redo the previous match at any point in the Book Arena
 - Elo-based ranking system with confidence tiers and variable K values
 - Smart matchmaking: prioritize books with lower confidence rating, similar Elo
   scores, and unmatched pairs
@@ -228,8 +229,8 @@ mathematically robust, way to reflect on their books.
   and lower confidence ratings)
 - [X] CSV export of final rankings
 - [X] Handle tied Elo scores (e.g., by head-to-head comparison and initial rating)
+- [X] Undo option for mistakes (track and undo the last 1–3 face-offs)
 - [ ] Support for adding/removing individual books
-- [ ] Undo option for mistakes (track and undo the last 1–3 face-offs)
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
 - [ ] Web terminal; serve the CLI interface via browser (Flask + xterm.js)
 - [ ] Web UI, full browser-based interface (longer term)

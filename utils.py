@@ -1,7 +1,10 @@
 PROMPT = "\033[1;33m > \033[0m"
 
 
-def prompt(options, error_message="Invalid choice, please try again.", p=PROMPT):
+def prompt(options, error_message=None, p=PROMPT):
+    if not error_message:
+        error_message = f"Invalid option, please try: {', '.join(options)}"
+
     while True:
         choice = input(f"{p}").strip().lower()
         if choice in options:

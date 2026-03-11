@@ -17,10 +17,14 @@ HEADER = "bold green"
 SUBHEADER = "bold yellow"
 ACCENT = "blue"
 DIVIDER = "cyan"
+REDO = "bold magenta"
 
 
 # --- Informational constants
 
+TEST_MESSAGE = (
+    f"{' ' * (LINE_LENGTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
+)
 
 CONFIDENCE_TIERS = (
     f"{style(' Confidence Tiers ', 'bold' + ACCENT)}{rule(LINE_LENGTH - 18, 'blue')}"
@@ -33,9 +37,7 @@ CONFIDENCE_TIERS = (
     f"\n {rule(LINE_LENGTH - 1, 'blue')}"
 )
 
-TEST_MESSAGE = (
-    f"{' ' * (LINE_LENGTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"
-)
+ARENA_OPTIONS = ["1", "2", "u", "b", "q"]
 
 GOODBYE = (
     f"{rule((LINE_LENGTH // 2 - 16), HEADER)}"
@@ -67,6 +69,7 @@ ARENA_HEADER = f"""
  Options:
    {style("1", SUBHEADER)} → Select book #1
    {style("2", SUBHEADER)} → Select book #2
+   {style("u", SUBHEADER)} → Undo previous match
    {style("b", SUBHEADER)} → Back to main menu
    {style("q", SUBHEADER)} → Quit program
    

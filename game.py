@@ -1,40 +1,64 @@
 import random
 import textwrap
+from collections import namedtuple
 
 import state
-from constants import ARENA_HEADER, DIVIDER, LINE_LENGTH, SUBHEADER
+from constants import (
+    ARENA_HEADER,
+    ARENA_OPTIONS,
+    DIVIDER,
+    LINE_LENGTH,
+    REDO,
+    SUBHEADER,
+)
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from utils import prompt, rule, style
+from utils import PROMPT, prompt, rule, style
+
+PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
 
 
 def run_game():
     """Run the game's main loop.
 
-    Select two books for comparison, prompt the user for selection between the two,
+    Select two books for comparison, prompt the user for choice between the two,
     resolve the match, and repeat until the user stops.
     """
     print(ARENA_HEADER, end="")
     input()
 
-    match_count = 0
-
+    match_count = 1
+    book_a, book_b = select_opponents()
+    previous = None
+    selected = True
     while True:
-        book_a, book_b = select_opponents()
-        match_count += 1
+        if not selected:
+            match_count += 1
+            book_a, book_b = select_opponents()
 
         print_match(match_count, book_a, book_b)
-        selection = prompt(
-            {"1", "2", "b", "q"},
-            "Invalid choice! Options: 1, 2, b, or q",
-        )
+        choice = prompt(ARENA_OPTIONS)
 
-        if selection in ["q", "b"]:
-            return selection
-        elif selection == "1":
-            resolve_comparison(winner=book_a, loser=book_b)
-        elif selection == "2":
-            resolve_comparison(winner=book_b, loser=book_a)
+        while choice == "u" and not previous:
+            print(f"{PROMPT}No previous match to undo.")
+            choice = prompt(ARENA_OPTIONS)
+
+        if choice == "u":
+            print_match(previous.match, previous.a, previous.b, redo=True)
+            new_choice = prompt(["1", "2"])
+            previous = PendingMatch(previous.match, previous.a, previous.b, new_choice)
+            selected = True
+            continue
+
+        if previous:
+            resolve_comparison(previous.a, previous.b, previous.choice)
+
+        if choice in ["q", "b"]:
+            return choice
+
+        previous = PendingMatch(match_count, book_a, book_b, choice)
+
+        selected = False
 
 
 def select_opponents():
@@ -92,11 +116,19 @@ def adjust_weights(book_a, weights):
     return adjusted_weights
 
 
-def print_match(match_count, book_a, book_b):
-    header = (
+def print_match(match_count, book_a, book_b, redo=False):
+    match_header = (
         f" {rule((LINE_LENGTH - 5 - len(str(match_count))), DIVIDER)}"
         f" {style(match_count, DIVIDER)}"
         f" {rule(2, DIVIDER)}"
+    )
+
+    redo_header = (
+        f" {rule(2, REDO)}"
+        f" {style('REDO', REDO)}"
+        f" {rule((LINE_LENGTH - 13 - len(str(match_count))), REDO)}"
+        f" {style(match_count, REDO)}"
+        f" {rule(2, REDO)}"
     )
 
     match = (
@@ -105,10 +137,15 @@ def print_match(match_count, book_a, book_b):
         f"   {style('2.', SUBHEADER)} {format_book(book_b)}"
     )
 
+    header = match_header if not redo else redo_header
+
     print("\n" + header + "\n" + match)
 
 
-def resolve_comparison(winner, loser):
+def resolve_comparison(book_a, book_b, selection):
+    winner = book_a if selection == "1" else book_b
+    loser = book_b if selection == "1" else book_a
+
     new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
     save_comparison(winner.id, loser.id)
 
