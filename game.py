@@ -98,7 +98,7 @@ def sampling_weight(book):
     total_opponents = len(state.books) - 1
     faced_opponents = len(book.opponents)
 
-    early_boost = 2.5 * (0.4 ** (faced_opponents / (total_opponents * 0.1)))
+    early_boost = 10 * (0.20 ** (faced_opponents / (total_opponents * 0.1)))
     confidence_weight = 1 - confidence_score(book)
     return max(0.1, confidence_weight, early_boost)
 
