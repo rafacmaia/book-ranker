@@ -1,3 +1,5 @@
+import state
+
 PROMPT = "\033[1;33m > \033[0m"
 
 
@@ -57,6 +59,31 @@ def ansi(styling=None):
         return ""
 
     return "\033[" + ";".join(sections) + "m"
+
+
+def rankings_summary(pct, color="bold green"):
+    summary = f" Your library:       {style(f'{len(state.books)} Books', color)}"
+    summary += f"\n Current confidence: {style(progress_bar(pct, 20), color)}\n"
+
+    if pct < 0.2:
+        summary += " Not much data yet, ranking mostly based on initial ratings."
+    elif pct < 0.45:
+        summary += (
+            " Still early stages, but broad tiers (top/mid/bottom) likely correct."
+        )
+    elif pct < 0.65:
+        summary += " General positions are fairly reliable, exact ranks still shifting."
+    elif pct < 0.85:
+        summary += (
+            " Positions are well established, "
+            "likely within ~5 spots of final placement."
+        )
+    elif pct < 0.95:
+        summary += " Rankings are locked in, unlikely to shift significantly."
+    else:
+        summary += " Absolute ranking of all books established!"
+
+    return summary
 
 
 def progress_bar(pct, width=20):

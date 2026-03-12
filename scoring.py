@@ -1,6 +1,5 @@
 import state
 from models import Book
-from utils import progress_bar, style
 
 # --- ELO SCORE CALCULATIONS ---
 
@@ -115,27 +114,3 @@ def stability_score(book):
     density = min((tight_neighbors * edge_factor) / 10, 1)
 
     return 1 - density
-
-
-def confidence_summary(pct, color="bold green"):
-    summary = f" Current confidence: {style(progress_bar(pct, 25), color)}\n"
-
-    if pct < 0.2:
-        summary += " Not much data yet, ranking mostly based on initial ratings."
-    elif pct < 0.45:
-        summary += (
-            " Still early stages, but broad tiers (top/mid/bottom) likely correct."
-        )
-    elif pct < 0.65:
-        summary += " General positions are fairly reliable, exact ranks still shifting."
-    elif pct < 0.85:
-        summary += (
-            " Positions are well established, "
-            "likely within ~5 spots of final placement."
-        )
-    elif pct < 0.95:
-        summary += " Rankings are locked in, unlikely to shift significantly."
-    else:
-        summary += " Absolute ranking of all books established!"
-
-    return summary

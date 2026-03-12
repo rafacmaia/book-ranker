@@ -15,12 +15,11 @@ from constants import (
 from scoring import (
     absolute_score,
     confidence_score,
-    confidence_summary,
     get_k,
     local_score,
     stability_score,
 )
-from utils import PROMPT, style
+from utils import PROMPT, rankings_summary, style
 
 
 def view_rankings(verbose=False):
@@ -34,8 +33,7 @@ def view_rankings(verbose=False):
     print(RANKINGS_HEADER)
 
     # Print informational summary of the user's library and current confidence level
-    print(" Your library:      ", style(f"{len(state.books)} Books", HEADER))
-    print(confidence_summary(state.rankings_confidence, HEADER))
+    print(rankings_summary(state.rankings_confidence, HEADER))
     input(f"\n{PROMPT}{style('Press Enter to view rankings...', SUBHEADER)} ")
     print()
 

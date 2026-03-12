@@ -223,13 +223,6 @@ mathematically robust, way to reflect on their books.
 
 ## 🗺️ Roadmap
 
-- [X] Track confidence tiers for Elo ratings to indicate the reliability of current
-  rankings
-- [X] Improve matchmaking (prioritize books with similar Elo scores, unmatched pairs,
-  and lower confidence ratings)
-- [X] CSV export of final rankings
-- [X] Handle tied Elo scores (e.g., by head-to-head comparison and initial rating)
-- [X] Undo option for mistakes (track and undo the last 1–3 face-offs)
 - [ ] Support for adding/removing individual books
 - [ ] Filter rankings by genre, author, or year read (e.g., "2021" or "Fantasy")
 - [ ] Web terminal; serve the CLI interface via browser (Flask + xterm.js)

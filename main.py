@@ -20,6 +20,7 @@ from constants import (
     LINE_LENGTH,
     MAIN_MENU,
     QUIT_OPTION,
+    SUBHEADER,
     TEST_MESSAGE,
     TITLE,
 )
@@ -30,8 +31,8 @@ from models import Book
 from rankings import (
     view_rankings,
 )
-from scoring import calculate_rankings_confidence, confidence_summary
-from utils import PROMPT, progress_bar, prompt, rule, style
+from scoring import calculate_rankings_confidence
+from utils import PROMPT, progress_bar, prompt, rankings_summary, rule, style
 
 console = Console(width=LINE_LENGTH)
 
@@ -131,6 +132,9 @@ def add_books():
         state.books = Book.load_all()
     else:
         print(EMPTY_IMPORT)
+        input(
+            f"{PROMPT}{style('Press Enter to return to the main menu... ', SUBHEADER)}"
+        )
 
     if interrupted:
         print(IMPORT_INTERRUPTED)
@@ -141,7 +145,7 @@ def add_books():
 def export_rankings():
     print()
     print(EXPORT_HEADER)
-    print(confidence_summary(state.rankings_confidence, constants.HEADER))
+    print(rankings_summary(state.rankings_confidence, constants.HEADER))
 
     print()
     print(" Proceed with export (y/n)?")
@@ -149,7 +153,9 @@ def export_rankings():
 
     if choice == "y":
         export_to_csv()
-    input(f"{PROMPT}Press Enter to return to the main menu... ")
+        input(
+            f"{PROMPT}{style('Press Enter to return to the main menu... ', SUBHEADER)}"
+        )
 
 
 # --- QUITTING AND BACKUPS  ---
