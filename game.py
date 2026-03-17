@@ -1,19 +1,15 @@
 import random
-import textwrap
 from collections import namedtuple
 
 import state
 from constants import (
     ARENA_HEADER,
     ARENA_OPTIONS,
-    DIVIDER,
-    LINE_LENGTH,
-    REDO,
-    SUBHEADER,
 )
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from utils import PROMPT, prompt, rule, style
+from theme import DIVIDER, LINE_LENGTH, PROMPT, REDO, SECONDARY
+from utils import format_book, prompt, rule, style
 
 PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
 
@@ -132,9 +128,9 @@ def print_match(match_count, book_a, book_b, redo=False):
     )
 
     match = (
-        f" {style('Which means more to you?', SUBHEADER)}\n"
-        f"   {style('1.', SUBHEADER)} {format_book(book_a)}\n"
-        f"   {style('2.', SUBHEADER)} {format_book(book_b)}"
+        f" {style('Which means more to you?', SECONDARY)}\n"
+        f"   {style('1.', SECONDARY)} {format_book(book_a)}\n"
+        f"   {style('2.', SECONDARY)} {format_book(book_b)}"
     )
 
     header = match_header if not redo else redo_header
@@ -156,7 +152,3 @@ def resolve_comparison(book_a, book_b, selection):
     loser.record_opponent(winner.id)
 
     winner.record_won_over(loser.id)
-
-
-def format_book(book):
-    return textwrap.fill(str(book), width=LINE_LENGTH - 7, subsequent_indent="\t")

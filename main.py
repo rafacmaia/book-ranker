@@ -7,8 +7,8 @@ from rich.console import Console
 
 import constants
 import state
+import theme
 from constants import (
-    ACCENT,
     EMPTY_IMPORT,
     EMPTY_LIBRARY,
     EXPORT_HEADER,
@@ -17,10 +17,8 @@ from constants import (
     IMPORT_INTERRUPTED,
     LIMIT_REACHED,
     LIMIT_WARNING,
-    LINE_LENGTH,
     MAIN_MENU,
     QUIT_OPTION,
-    SUBHEADER,
     TEST_MESSAGE,
     TITLE,
 )
@@ -32,7 +30,16 @@ from rankings import (
     view_rankings,
 )
 from scoring import calculate_rankings_confidence
-from utils import PROMPT, progress_bar, prompt, rankings_summary, rule, style
+from theme import ACCENT, LINE_LENGTH, PROMPT, SECONDARY
+from utils import (
+    format_book,
+    press_enter,
+    progress_bar,
+    prompt,
+    rankings_summary,
+    rule,
+    style,
+)
 
 console = Console(width=LINE_LENGTH)
 
@@ -47,7 +54,7 @@ def startup():
     print(TITLE)
 
     # Warn if running in test mode, which uses a separate test database
-    if state.db_path == "data/test.db":
+    if "test" in state.db_path:
         print(TEST_MESSAGE)
 
     # First run, no books in the system - prompt for CSV import
@@ -58,7 +65,7 @@ def startup():
         if response == "q":
             quit_game()
 
-        process_imports(response)
+        process_import(response)
         print()
 
     calculate_rankings_confidence()
@@ -117,6 +124,7 @@ def add_books():
 
     if len(state.books) >= constants.BOOK_LIMIT:
         print(LIMIT_REACHED)
+        press_enter()
         return
     print(" Please provide the path to your CSV book log to sync new books.")
     print()
@@ -125,16 +133,29 @@ def add_books():
     if response == "b":
         return
 
-    process_imports(response)
+    process_import(response)
 
 
-def process_imports(filepath):
-    """Process imports."""
-    added, interrupted = import_from_csv(filepath)
+def process_import(filepath):
+    """Process result form csv import, display results and relevant messages."""
+    first_import = not state.books
+    new_books, interrupted = import_from_csv(filepath)
+    added = len(new_books)
 
     if added > 0:
-        print(f"{PROMPT}Imported {added} book{'s' if added > 1 else ''}!")
         state.books = Book.load_all()
+
+        suffix = "!" if first_import else ":"
+        plural = "s" if added > 1 else ""
+        print(f"{PROMPT}Imported {added} book{plural}{suffix}")
+
+        if not first_import:
+            for i, book in enumerate(new_books, start=1):
+                print(
+                    f"     {style(f'{i}.', SECONDARY)}"
+                    f" {format_book(book, LINE_LENGTH - 9)}"
+                )
+
         if interrupted:
             print(IMPORT_INTERRUPTED)
         elif len(state.books) >= constants.BOOK_LIMIT:
@@ -142,13 +163,13 @@ def process_imports(filepath):
     else:
         print(EMPTY_IMPORT)
 
-    input(f"{PROMPT}{style('Press Enter for the main menu... ', SUBHEADER)}")
+    press_enter(new_line=False)
 
 
 def export_rankings():
     print()
     print(EXPORT_HEADER)
-    print(rankings_summary(state.rankings_confidence, constants.HEADER))
+    print(rankings_summary(state.rankings_confidence, theme.PRIMARY))
 
     print()
     print(" Proceed with export (y/n)?")
@@ -156,9 +177,7 @@ def export_rankings():
 
     if choice == "y":
         export_to_csv()
-        input(
-            f"{PROMPT}{style('Press Enter to return to the main menu... ', SUBHEADER)}"
-        )
+        press_enter(new_line=False)
 
 
 # --- QUITTING AND BACKUPS  ---

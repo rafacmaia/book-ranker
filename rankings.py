@@ -6,11 +6,8 @@ import state
 from constants import (
     BATCH_SIZE,
     CONFIDENCE_TIERS,
-    HEADER,
     INITIAL_BATCH_SIZE,
-    LINE_LENGTH,
     RANKINGS_HEADER,
-    SUBHEADER,
 )
 from scoring import (
     absolute_score,
@@ -19,7 +16,8 @@ from scoring import (
     local_score,
     stability_score,
 )
-from utils import PROMPT, rankings_summary, style
+from theme import LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
+from utils import press_enter, rankings_summary, style
 
 
 def view_rankings(verbose=False):
@@ -33,8 +31,8 @@ def view_rankings(verbose=False):
     print(RANKINGS_HEADER)
 
     # Print informational summary of the user's library and current confidence level
-    print(rankings_summary(state.rankings_confidence, HEADER))
-    input(f"\n{PROMPT}{style('Press Enter to view rankings...', SUBHEADER)} ")
+    print(rankings_summary(state.rankings_confidence, PRIMARY))
+    press_enter('Press Enter to view rankings...')
     print()
 
     print_table(ranked_books, 0, batch_end, verbose)
@@ -129,17 +127,17 @@ def print_table(books, start, end, verbose=False):
 
 
 def add_columns(table, verbose):
-    table.add_column("#", justify="left", style=HEADER, header_style=HEADER)
-    table.add_column("TITLE", justify="left", header_style=HEADER)
-    table.add_column("AUTHOR", justify="left", header_style=HEADER)
-    table.add_column("CONFIDENCE", justify="left", header_style=HEADER)
+    table.add_column("#", justify="left", style=PRIMARY, header_style=PRIMARY)
+    table.add_column("TITLE", justify="left", header_style=PRIMARY)
+    table.add_column("AUTHOR", justify="left", header_style=PRIMARY)
+    table.add_column("CONFIDENCE", justify="left", header_style=PRIMARY)
 
     if verbose:
-        table.add_column("ELO", justify="left", header_style=HEADER)
-        table.add_column("K", justify="left", header_style=HEADER)
-        table.add_column("ABS", justify="left", header_style=HEADER)
-        table.add_column("LOC", justify="left", header_style=HEADER)
-        table.add_column("STA", justify="left", header_style=HEADER)
+        table.add_column("ELO", justify="left", header_style=PRIMARY)
+        table.add_column("K", justify="left", header_style=PRIMARY)
+        table.add_column("ABS", justify="left", header_style=PRIMARY)
+        table.add_column("LOC", justify="left", header_style=PRIMARY)
+        table.add_column("STA", justify="left", header_style=PRIMARY)
 
 
 def add_rows(table, books, start, end, verbose):
@@ -184,7 +182,7 @@ def rankings_menu(batch_end):
     if batch_end < len(state.books):
         print(
             f"{' ' * (LINE_LENGTH - 22)}"
-            f"{style(f'↵ → See next {BATCH_SIZE}', styling=SUBHEADER)}"
+            f"{style(f'↵ → See next {BATCH_SIZE}', styling=SECONDARY)}"
         )
     print(
         f"{' ' * (LINE_LENGTH - 22)}? → Confidence tiers\n"
