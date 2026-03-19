@@ -3,12 +3,13 @@ from collections import namedtuple
 
 import state
 from constants import (
-    ARENA_HEADER,
-    ARENA_OPTIONS,
+    PIT_HEADER,
+    PIT_INSTRUCTIONS,
+    PIT_OPTIONS,
 )
 from db import save_comparison
 from scoring import calculate_elo, confidence_score
-from theme import DIVIDER, LINE_LENGTH, PROMPT, REDO, SECONDARY
+from theme import ACCENT, DIVIDER, LINE_LENGTH, PRIMARY, PROMPT, REDO, SECONDARY
 from utils import format_book, prompt, rule, style
 
 PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
@@ -20,7 +21,11 @@ def run_game():
     Select two books for comparison, prompt the user for choice between the two,
     resolve the match, and repeat until the user stops.
     """
-    print(ARENA_HEADER, end="")
+    print(PIT_HEADER)
+    print(
+        f" {style(len(state.books), SECONDARY)} books entered. {style('One wins.', SECONDARY)}"
+    )
+    print(PIT_INSTRUCTIONS, end="")
     input()
 
     match_count = 1
@@ -33,11 +38,11 @@ def run_game():
             book_a, book_b = select_opponents()
 
         print_match(match_count, book_a, book_b)
-        choice = prompt(ARENA_OPTIONS)
+        choice = prompt(PIT_OPTIONS)
 
         while choice == "u" and not previous:
             print(f"{PROMPT}No previous match to undo.")
-            choice = prompt(ARENA_OPTIONS)
+            choice = prompt(PIT_OPTIONS)
 
         if choice == "u":
             print_match(previous.match, previous.a, previous.b, redo=True)
@@ -121,8 +126,8 @@ def print_match(match_count, book_a, book_b, redo=False):
 
     redo_header = (
         f" {rule(2, REDO)}"
-        f" {style('REDO', REDO)}"
-        f" {rule((LINE_LENGTH - 13 - len(str(match_count))), REDO)}"
+        f" {style('REMATCH', REDO)}"
+        f" {rule((LINE_LENGTH - 16 - len(str(match_count))), REDO)}"
         f" {style(match_count, REDO)}"
         f" {rule(2, REDO)}"
     )

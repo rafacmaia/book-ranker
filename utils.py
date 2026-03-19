@@ -6,7 +6,7 @@ from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 def prompt(options, error_message=None, p=PROMPT):
     if not error_message:
-        error_message = f"Invalid option, please try: {', '.join(options)}"
+        error_message = f"Nope, please try: {', '.join(options)}"
 
     while True:
         choice = input(f"{p}").strip().lower()
@@ -40,6 +40,12 @@ def ansi(styling=None):
 
     if "bold" in styling:
         sections.append("1")
+    if "dim" in styling:
+        sections.append("2")
+    if "italic" in styling:
+        sections.append("3")
+    if "underline" in styling:
+        sections.append("4")
 
     if "red" in styling:
         sections.append("31")
@@ -62,9 +68,9 @@ def ansi(styling=None):
     return "\033[" + ";".join(sections) + "m"
 
 
-def rankings_summary(pct, color=PRIMARY):
-    summary = f" Your library:       {style(f'{len(state.books)} Books', color)}"
-    summary += f"\n Current confidence: {style(progress_bar(pct, 20), color)}\n"
+def leaderboard_summary(pct, color=PRIMARY):
+    summary = f" Your library:     {style(f'{len(state.books)} Books', color)}"
+    summary += f"\n Current progress: {style(progress_bar(pct, 20), color)}\n\033[3m"
 
     if pct < 0.2:
         summary += " Not much data yet, ranking mostly based on initial ratings."
@@ -82,9 +88,9 @@ def rankings_summary(pct, color=PRIMARY):
     elif pct < 0.95:
         summary += " Rankings are locked in, unlikely to shift significantly."
     else:
-        summary += " Absolute ranking of all books established!"
+        summary += " Final standings of all books established!"
 
-    return summary
+    return summary + "\033[0m"
 
 
 def progress_bar(pct, width=20):

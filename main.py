@@ -3,8 +3,6 @@ import shutil
 import sys
 from datetime import datetime
 
-from rich.console import Console
-
 import constants
 import state
 import theme
@@ -25,18 +23,19 @@ from constants import (
 from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db import init_db
 from game import run_game
-from models import Book
-from rankings import (
-    view_rankings,
+from leaderboard import (
+    view_leaderboard,
 )
-from scoring import calculate_rankings_confidence
+from models import Book
+from rich.console import Console
+from scoring import calculate_progress
 from theme import ACCENT, LINE_LENGTH, PROMPT, SECONDARY
 from utils import (
     format_book,
+    leaderboard_summary,
     press_enter,
     progress_bar,
     prompt,
-    rankings_summary,
     rule,
     style,
 )
@@ -58,59 +57,64 @@ def startup():
         print(TEST_MESSAGE)
 
     # First run, no books in the system - prompt for CSV import
-    if not state.books:
+    first_run = not state.books
+    if first_run:
         print(EMPTY_LIBRARY)
 
-        response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
-        if response == "q":
-            quit_game()
+        while not state.books:
+            print()
+            response = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
+            if response == "q":
+                quit_game()
+            process_import(response)
 
-        process_import(response)
         print()
 
-    calculate_rankings_confidence()
-    main_menu()
+    calculate_progress()
+    main_menu(first_run)
 
 
-def main_menu():
+def main_menu(first_run=False):
     """Display the main menu and handle user input."""
     while True:
-        confidence_progress = (
-            f"  CONFIDENCE: {progress_bar(state.rankings_confidence, 20)}  "
-        )
+        if not first_run:
+            confidence_progress = (
+                f"  PROGRESS: {progress_bar(state.current_progress, 20)}  "
+            )
 
-        padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
-        print(
-            f" {rule(padding, ACCENT)}"
-            f"{style(confidence_progress, ACCENT)}"
-            f"{rule(padding, ACCENT)}"
-        )
+            padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
+            print(
+                f" {rule(padding, ACCENT)}"
+                f"{style(confidence_progress, ACCENT)}"
+                f"{rule(padding, ACCENT)}"
+            )
+
         print(MAIN_MENU)
         print()
 
         choice = prompt(
-            {"1", "2", "2 -v", "3", "4", QUIT_OPTION},
-            f"Invalid choice, I can only read options 1-{QUIT_OPTION}.",
+            {"1", "2", "2 -v", "3", "4", "q", QUIT_OPTION},
+            error_message=f"Nope, I can only read options 1-{QUIT_OPTION}.",
         )
         next_action = ""
 
         if choice == "1":
             next_action = run_game()
-            calculate_rankings_confidence()
+            calculate_progress()
         elif choice in ("2", "2 -v"):
-            next_action = view_rankings(verbose="-v" in choice)
+            next_action = view_leaderboard(verbose="-v" in choice)
         elif choice == "3":
             add_books()
-            calculate_rankings_confidence()
+            calculate_progress()
         elif choice == "4":
-            export_rankings()
-        elif choice == QUIT_OPTION:
+            export_leaderboard()
+        elif choice in [QUIT_OPTION, "q"]:
             quit_game()
 
         if next_action == "q":
             quit_game()
         if next_action == "e":
-            export_rankings()
+            export_leaderboard()
 
         print()
         # Warn if running in test mode, which uses a separate test database
@@ -160,16 +164,16 @@ def process_import(filepath):
             print(IMPORT_INTERRUPTED)
         elif len(state.books) >= constants.BOOK_LIMIT:
             print(LIMIT_WARNING)
+
+        press_enter(new_line=False)
     else:
         print(EMPTY_IMPORT)
 
-    press_enter(new_line=False)
 
-
-def export_rankings():
+def export_leaderboard():
     print()
     print(EXPORT_HEADER)
-    print(rankings_summary(state.rankings_confidence, theme.PRIMARY))
+    print(leaderboard_summary(state.current_progress, theme.PRIMARY))
 
     print()
     print(" Proceed with export (y/n)?")

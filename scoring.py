@@ -46,34 +46,34 @@ ABS_MIN_OPPONENTS = 8
 DENSITY_WINDOW = 26
 
 
-def calculate_rankings_confidence():
+def calculate_progress():
     if not state.books:
-        state.rankings_confidence = 0
+        state.current_progress = 0
         return
     con_scores = [confidence_score(book) for book in state.books]
-    state.rankings_confidence = sum(con_scores) / len(con_scores)
+    state.current_progress = sum(con_scores) / len(con_scores)
 
 
 def confidence_score(book):
     """Return a confidence score indicating the certainty of a book's ranking.
 
-    Use a weighted combination of absolute number of opponents faced, number of
-    similarly scored opponents faced, and local density in overall rankings to account
+    Use a weighted combination of the number of opponents faced, number of faced
+    opponents with similar score, and local density in overall rankings to account
     for, respectively, overall confidence, local confidence, and stability.
     """
     if len(state.books) <= 1:
         return 0
 
-    # Absolute score emphasizes that the first batch of matches should carry a lot of
-    # weight to quickly reach an overall placement.
+    # Absolute score boosts the first batch of matches to quickly reach an
+    # overall placement.
     abs_score_weighted = absolute_score(book) * ABS_SCORE_WEIGHT
 
-    # Local score emphasizes that matches against books with similar Elo scores should
-    # carry more weight to quickly refine placement within the rankings.
+    # Local score boosts matches against books with similar Elo to refine
+    # placement within the leaderboard.
     loc_score_weighted = local_score(book) * LOC_SCORE_WEIGHT
 
-    # Density score accounts for the local density of Elo scores in the overall
-    # rankings. High cluster density indicates a high chance of ranks easily shifting.
+    # Density score boosts books with few neighbors with similar Elo, meaning
+    # more stability. High density indicates a high chance of ranks shifting.
     den_score_weighted = stability_score(book) * DEN_SCORE_WEIGHT
 
     return abs_score_weighted + loc_score_weighted + den_score_weighted

@@ -1,15 +1,15 @@
-# 📚 Book Ranker
+# 📚 Book Brawl
 
 ![Status](https://img.shields.io/badge/status-in--development-yellow)
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
-![Last commit](https://img.shields.io/github/last-commit/rafacmaia/book-ranker)
+![Last commit](https://img.shields.io/github/last-commit/rafacmaia/book-brawl)
 
 You've read dozens (hundreds?) of books and vaguely know you like some better than
 others. But which one was actually your favourite? Your top 20? Top 42? And was that
 rating of 7 you gave in 2021 really fair compared to the 8 you handed out last week?
 
-Book Ranker cuts through the noise by turning your reading log into a tournament. It pits
+Book Brawl cuts through the noise by turning your reading log into a tournament. It pits
 two books head-to-head and asks one simple question:
 
 > Which book means more to you, A or B?
@@ -26,12 +26,12 @@ favorite book of all time is. Those days are over!
 <h3>Main Menu:</h3>
 <img src="screenshots/main-menu-1.png" alt="Main Menu">
 
-<h3>Book Arena:</h3>
+<h3>Brawl Pit:</h3>
 <img src="screenshots/game-arena-1.png" alt="Game Arena Start">
 <img src="screenshots/game-arena-2.png" alt="Game Arena ongoing comparisons">
 <img src="screenshots/game-arena-3.png" alt="Game Arena ongoing comparisons">
 
-<h3>View Rankings:</h3>
+<h3>View Leaderboard:</h3>
 <img src="screenshots/rankings-1.png" alt="Rankings display 1">
 <img src="screenshots/rankings-2.png" alt="Rankings display 2">
 
@@ -44,22 +44,22 @@ favorite book of all time is. Those days are over!
 ## 🪩 Features
 
 - CSV import from your reading log (format: title, author, rating)
-- Book Arena: head-to-head book comparisons on loop
-- Undo option: redo the previous match at any point in the Book Arena
-- Elo-based ranking system with confidence tiers and variable K values
-- Smart matchmaking: prioritize books with lower confidence rating, similar Elo
+- Brawl Pit: head-to-head book comparisons on loop
+- Undo option: redo the previous match at any point in the Brawl Pit
+- Elo-based ranking system with accuracy tiers and variable K values
+- Smart matchmaking: prioritize books with lower accuracy rating, similar Elo
   scores, and unmatched pairs
-- Multifactor confidence scoring: measures both individual and overall confidence
-  in rankings
+- Multifactor accuracy scoring: measures both individual and overall accuracy
+  of rankings
 - Persistent rankings via SQLite to build accurate data over time
 - Add new books at any time: New books are mapped into the current Elo range based on
   their original rating, ensuring intelligent initial positioning before the game can
   refine it.
-- Confidence and matchmaking algorithms are optimized to avoid full pairwise comparisons,
+- Accuracy and matchmaking algorithms are optimized to avoid full pairwise comparisons,
   allowing the system to scale efficiently to libraries of 2500+ books.
 - Tied rankings are broken by head-to-head wins, then by initial rating, with a visual
   indicator (`~`) for unresolvable ties.
-- Export your rankings to CSV
+- Export the leaderboard to CSV
 
 _See the [How it Works](#-how-it-works) section below for more details._
 
@@ -72,8 +72,8 @@ _See the [How it Works](#-how-it-works) section below for more details._
 
 1. Clone the repo:
    ```bash
-   git clone https://github.com/rafacmaia/book-ranker.git
-   cd book-ranker
+   git clone https://github.com/rafacmaia/book-brawl.git
+   cd book-brawl
    ```
 
 
@@ -111,7 +111,7 @@ _See the [How it Works](#-how-it-works) section below for more details._
   directory, just run steps 3 and 5 to launch the app.
 
 - A sample CSV with 25 books is included at [
-  `data/sample-books.csv`](data/sample-books.csv) to get you started.
+  `data/sample.csv`](data/sample.csv) to get you started.
 
 ## 📃 CSV Format
 
@@ -143,19 +143,19 @@ stability modeling to improve convergence speed and ranking reliability.
 #### Adaptive K-Factor
 
 The Elo K-value (which determines how much a rating can change in a single match) adapts
-dynamically based on ranking confidence:
+dynamically based on ranking accuracy:
 
-- Low-confidence books have higher K values, allowing them to move quickly toward their
+- Low-accuracy books have higher K values, allowing them to move quickly toward their
   appropriate tier.
 
-- High-confidence books gradually shift to lower K values, reducing volatility as their
+- High-accuracy books gradually shift to lower K values, reducing volatility as their
   position stabilizes.
 
 This ensures fast early convergence without sacrificing long-term ranking stability.
 
-### 🔍 Confidence Calculation
+### 🔍 Accuracy Calculation
 
-Each book’s confidence score represents how stable its current ranking is. It is
+Each book’s accuracy score represents how stable its current ranking is. It is
 calculated as a weighted combination of three independent signals:
 
 1. **Absolute Coverage** – How many unique opponents the book has faced. This ensures
@@ -165,22 +165,22 @@ calculated as a weighted combination of three independent signals:
    This refines placement within its tier.
 3. **Local Density (Rank Fragility)** – Measures how many nearby books sit within a
    narrow Elo band. Even if a book has strong coverage, tight clusters indicate potential
-   short-term rank instability. High density prevents premature “Very High” confidence
+   short-term rank instability. High density prevents premature “Very High” accuracy
    assignments.
 
-#### Confidence Tiers
+#### Accuracy Tiers
 
 - 🔴 Very Low: Early data, ranking mostly based on initial rating
 - 🟠 Low: Some data, broad tier is likely correct (top/mid/bottom)
 - 🟡 Moderate: General position is fairly reliable, exact rank still shifting
-- 🟢 High: Position is well established, likely within ~10 spots
+- 🟢 High: Position is well established, likely within ~5 spots
 - ✅ Very High: Locked in, unlikely to shift significantly
 
 ### 🎯 Intelligent Matchmaking
 
 Matchups are not random.
 
-The Book Arena uses weighted stochastic matchmaking designed to maximize information gain
+The Brawl Pit uses weighted stochastic matchmaking designed to maximize information gain
 and accelerate ranking convergence.
 
 Pair selection prioritizes:
@@ -188,14 +188,14 @@ Pair selection prioritizes:
 - Books with very few matches (to quickly obtain some baseline data on every book)
 - Rare or unmatched pairings
 - Matchups between books with similar Elo score (where outcomes are most informative)
-- Books with lower confidence (to maximize overall ranking confidence)
+- Books with lower accuracy (to maximize overall ranking accuracy/progress)
 
 The result is a system that converges efficiently while still allowing occasional
 cross-tier matchups to maintain global calibration.
 
 ### Why This Matters
 
-Instead of treating ranking as a static score, Book Ranker models:
+Instead of treating ranking as a static score, Book Brawl models:
 
 - Volatility (via adaptive K)
 - Information gain (via weighted matchmaking)
@@ -208,19 +208,19 @@ mathematically robust, way to reflect on their books.
 
 ## 🗂️ Project Structure
 
-| File                               | Description                           |
-|------------------------------------|---------------------------------------|
-| [`main.py`](main.py)               | Entry point and main menu             |
-| [`game.py`](game.py)               | Game loop and matchmaking logic       |
-| [`scoring.py`](scoring.py)         | Elo and confidence level calculations |
-| [`rankings.py`](rankings.py)       | Rankings display and table rendering  |
-| [`models.py`](models.py)           | Book class                            |
-| [`db.py`](db.py)                   | Database setup and queries            |
-| [`csv_handler.py`](csv_handler.py) | CSV import and export handling        |
-| [`constants.py`](constants.py)     | UI strings and layout values          |
-| [`utils.py`](utils.py)             | Styling utilities                     |
-| [`theme.py`](theme.py)             | Color and layout constants            |
-| [`state.py`](state.py)             | Global state management               |
+| File                               | Description                          |
+|------------------------------------|--------------------------------------|
+| [`main.py`](main.py)               | Entry point and main menu            |
+| [`game.py`](game.py)               | Game loop and matchmaking logic      |
+| [`scoring.py`](scoring.py)         | Elo and accuracy level calculations  |
+| [`leaderboard.py`](leaderboard.py) | Rankings display and table rendering |
+| [`models.py`](models.py)           | Book class                           |
+| [`db.py`](db.py)                   | Database setup and queries           |
+| [`csv_handler.py`](csv_handler.py) | CSV import and export handling       |
+| [`constants.py`](constants.py)     | UI strings and layout values         |
+| [`utils.py`](utils.py)             | Styling utilities                    |
+| [`theme.py`](theme.py)             | Color and layout constants           |
+| [`state.py`](state.py)             | Global state management              |
 
 ## 🗺️ Roadmap
 

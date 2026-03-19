@@ -18,7 +18,7 @@ ENV/
 *.sqlite
 *.sqlite3
 backup/
-data/book-log.csv
+data/books.csv
 exports/
 
 # Distribution / packaging
@@ -35,3 +35,6 @@ build/
 # Temporary web terminal deployment (ttyd) - remove when web UI is built
 deploy.sh
 .rsyncignore
+
+# Personal dev notes
+DEV_NOTES.md

@@ -1,14 +1,13 @@
+import state
+from constants import (
+    ACCURACY_TIERS,
+    BATCH_SIZE,
+    INITIAL_BATCH_SIZE,
+    LEADERBOARD_HEADER,
+)
 from rich import box
 from rich.console import Console
 from rich.table import Table
-
-import state
-from constants import (
-    BATCH_SIZE,
-    CONFIDENCE_TIERS,
-    INITIAL_BATCH_SIZE,
-    RANKINGS_HEADER,
-)
 from scoring import (
     absolute_score,
     confidence_score,
@@ -17,34 +16,36 @@ from scoring import (
     stability_score,
 )
 from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
-from utils import press_enter, rankings_summary, style
+from utils import leaderboard_summary, press_enter, style
 
 
-def view_rankings(verbose=False):
-    """Print the top-ranked books in the system, based on their Elo scores, with an
-    option to view more books.
+def view_leaderboard(verbose=False):
+    """Handle the leaderboard view.
+
+    Provides current library status, ranks books based on Elo scores, and displays
+    rankings in batches.
     """
     ranked_books = rank_books()
     batch_end = INITIAL_BATCH_SIZE
 
     print()
-    print(RANKINGS_HEADER)
+    print(LEADERBOARD_HEADER)
 
     # Print informational summary of the user's library and current confidence level
-    print(rankings_summary(state.rankings_confidence, PRIMARY))
-    press_enter('Press Enter to view rankings...')
+    print(leaderboard_summary(state.current_progress, PRIMARY))
+    press_enter("Press Enter to view leaderboard...")
     print()
 
     print_table(ranked_books, 0, batch_end, verbose)
 
     while True:
-        next_action = rankings_menu(batch_end)
+        next_action = table_menu(batch_end)
 
         if next_action == "":
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         elif next_action == "?":
-            print(CONFIDENCE_TIERS)
+            print(ACCURACY_TIERS)
         else:
             return next_action
 
@@ -130,7 +131,7 @@ def add_columns(table, verbose):
     table.add_column("#", justify="left", style=PRIMARY, header_style=PRIMARY)
     table.add_column("TITLE", justify="left", header_style=PRIMARY)
     table.add_column("AUTHOR", justify="left", header_style=PRIMARY)
-    table.add_column("CONFIDENCE", justify="left", header_style=PRIMARY)
+    table.add_column("ACCURACY", justify="left", header_style=PRIMARY)
 
     if verbose:
         table.add_column("ELO", justify="left", header_style=PRIMARY)
@@ -178,17 +179,17 @@ def confidence_label(confidence):
         return "✅  Very High"
 
 
-def rankings_menu(batch_end):
+def table_menu(batch_end):
     if batch_end < len(state.books):
         print(
-            f"{' ' * (LINE_LENGTH - 22)}"
+            f"{' ' * (LINE_LENGTH - 20)}"
             f"{style(f'↵ → See next {BATCH_SIZE}', styling=SECONDARY)}"
         )
     print(
-        f"{' ' * (LINE_LENGTH - 22)}? → Confidence tiers\n"
-        f"{' ' * (LINE_LENGTH - 22)}b → Main menu\n"
-        f"{' ' * (LINE_LENGTH - 22)}e → Export rankings\n"
-        f"{' ' * (LINE_LENGTH - 22)}q → Quit"
+        f"{' ' * (LINE_LENGTH - 20)}? → Accuracy tiers\n"
+        f"{' ' * (LINE_LENGTH - 20)}b → Main menu\n"
+        f"{' ' * (LINE_LENGTH - 20)}e → Export\n"
+        f"{' ' * (LINE_LENGTH - 20)}q → Quit"
     )
 
     choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
