@@ -7,7 +7,6 @@ from constants import (
     ACCURACY_TIERS,
     BATCH_SIZE,
     INITIAL_BATCH_SIZE,
-    LEADERBOARD_HEADER,
 )
 from scoring import (
     absolute_score,
@@ -45,7 +44,9 @@ def view_leaderboard(verbose=False):
             batch_end += BATCH_SIZE
             print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
         elif next_action == "?":
+            print(header("Accuracy Tiers", color=ACCENT))
             print(ACCURACY_TIERS)
+            print(rule(LINE_LENGTH - 1, ACCENT))
         else:
             return next_action
 

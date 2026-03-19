@@ -3,11 +3,10 @@ from collections import namedtuple
 
 import state
 from constants import (
-    PIT_HEADER,
-    PIT_INSTRUCTIONS,
     PIT_OPTIONS,
 )
 from db import save_comparison
+from messages import PIT_INSTRUCTIONS
 from scoring import calculate_elo, confidence_score
 from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
 from utils import format_book, header, press_enter, prompt, rule, style

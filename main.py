@@ -10,19 +10,9 @@ import theme
 from constants import (
     BACKUPS_LIMIT,
     BOOK_LIMIT,
-    EMPTY_IMPORT,
-    EMPTY_LIBRARY,
-    EXPORT_HEADER,
-    GOODBYE,
-    IMPORT_HEADER,
-    IMPORT_INTERRUPTED,
-    LIMIT_REACHED,
-    LIMIT_WARNING,
     MAIN_MENU,
     MAIN_OPTIONS,
-    RESET_HEADER,
     TEST_MESSAGE,
-    TITLE,
 )
 from csv_handler import csv_reader, export_to_csv, import_from_csv
 from db import init_db
@@ -30,8 +20,16 @@ from game import run_game
 from leaderboard import (
     view_leaderboard,
 )
+from messages import (
+    EMPTY_IMPORT,
+    GOODBYE,
+    IMPORT_INTERRUPTED,
+    LIMIT_REACHED,
+    LIMIT_WARNING,
+    ONBOARDING,
+    TITLE,
+)
 from models import Book
-from rich.console import Console
 from scoring import calculate_progress
 from theme import ACCENT, ERROR, LINE_LENGTH, PROMPT, SECONDARY
 from utils import (
@@ -64,7 +62,7 @@ def startup():
     # First run, no books in the system - prompt for CSV import
     first_run = not state.books
     if first_run:
-        print(EMPTY_LIBRARY)
+        print(ONBOARDING)
 
         while not state.books:
             print()
@@ -96,7 +94,6 @@ def main_menu(first_run=False):
 
         print(header("MAIN MENU"))
         print(MAIN_MENU)
-        print()
 
         choice = prompt(
             MAIN_OPTIONS,

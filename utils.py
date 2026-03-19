@@ -1,6 +1,7 @@
 import textwrap
 
 import state
+from constants import PROGRESS_LABELS, SUMMARY_LABELS
 from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 
@@ -69,49 +70,26 @@ def ansi(styling=None):
 
 
 def leaderboard_summary(pct, color=PRIMARY):
-    summary = f" Your library:     {style(f'{len(state.books)} Books', color)}"
+    count = len(state.books)
+    summary = (
+        f" Your library:     {style(f'{count} Book{"s" if count > 1 else ""}', color)}"
+    )
     summary += f"\n Current progress: {style(progress_bar(pct, 20), color)}\n\033[3m"
 
-    if pct < 0.2:
-        summary += " Not much data yet, ranking mostly based on initial ratings."
-    elif pct < 0.45:
-        summary += (
-            " Still early stages, but broad tiers (top/mid/bottom) likely correct."
-        )
-    elif pct < 0.65:
-        summary += " General positions are fairly reliable, exact ranks still shifting."
-    elif pct < 0.85:
-        summary += (
-            " Positions are well established, "
-            "likely within ~5 spots of final placement."
-        )
-    elif pct < 0.95:
-        summary += " Rankings are locked in, unlikely to shift significantly."
-    else:
-        summary += " Final standings of all books established!"
+    summary += next(label for threshold, label in SUMMARY_LABELS if pct <= threshold)
 
     return summary + "\033[0m"
 
 
 def progress_bar(pct, width=20):
-    filled = round(pct * width)
-    empty = width - filled
-    bar = "█" * filled + "░" * empty
+    filled_section = round(pct * width)
+    empty_section = width - filled_section
+
+    bar = "█" * filled_section + "░" * empty_section
+
     pct_str = f"{pct * 100:3.0f}%"
 
-    # Make sure labels have an odd number of chars to fit the display better.
-    if pct < 0.2:
-        label = "🔴 JUST STARTING"
-    elif pct < 0.45:
-        label = "🟠 COOKING"
-    elif pct < 0.65:
-        label = "🟡 GETTING THERE"
-    elif pct < 0.85:
-        label = "🟢 WE'RE CLOSE"
-    elif pct < 0.95:
-        label = "✅  LOCKED IN"
-    else:
-        label = "✨ COMPLETE! ✨"
+    label = next(label for threshold, label in PROGRESS_LABELS if pct <= threshold)
 
     return f"{bar} {pct_str}  {label}"
 
