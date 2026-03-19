@@ -21,10 +21,11 @@ def csv_reader(prompt=" CSV file path: ", back_key="q"):
             continue
 
         if not filepath.endswith(".csv"):
-            print(
-                f"{PROMPT}\033[31mThat doesn't look like a CSV."
-                " Please provide the full path to your CSV file.\033[0m"
+            error_message = (
+                "That doesn't look like a CSV. "
+                "Please provide the full path to a CSV file."
             )
+            print(f"{PROMPT}{style(error_message, ERROR)}")
             continue
 
         return filepath
@@ -51,8 +52,9 @@ def import_from_csv(filepath):
                 title = row["title"].strip()
                 author = row["author"].strip()
 
+                raw_rating = (row.get("rating") or "").strip()
                 try:
-                    rating = float(row["rating"].strip())
+                    rating = float(raw_rating) if raw_rating else 5.0
                     if not 0 <= rating <= 10:
                         raise ValueError(
                             f"Rating must be between 0 and 10, got {rating}"
@@ -79,8 +81,8 @@ def import_from_csv(filepath):
         return new_books, interrupted
     except KeyError as e:
         print(
-            f"{PROMPT}\033[31mError! Missing column \033[33m{e}\033[31m in CSV file. Expected columns:"
-            f" \033[33m title\033[31m,\033[33m author\033[31m,\033[33m rating\033[31m."
+            f"{PROMPT}\033[31mError! Missing column \033[33m{e}\033[31m in CSV file. "
+            f"Required columns: \033[33m title\033[31m,\033[33m author\033[31m."
         )
         return new_books, interrupted
 
@@ -91,7 +93,7 @@ def export_to_csv():
     """Export all books with their current rankings, to a CSV file."""
     os.makedirs("exports", exist_ok=True)
     timestamp = datetime.now().strftime("%Y-%m-%d")
-    filepath = os.path.join("exports", f"book_rankings_{timestamp}.csv")
+    filepath = os.path.join("exports", f"book_brawl_{timestamp}.csv")
 
     # Check if the file already exists, if so, append a number to the end
     if os.path.exists(filepath):
@@ -109,4 +111,4 @@ def export_to_csv():
         for i, book in enumerate(ranked_books, start=1):
             writer.writerow([i, book.title, book.author, book.rating])
 
-    print(f"{PROMPT}✓ Rankings exported to:\033[32m {filepath}\033[0m")
+    print(f"{PROMPT}✓ Leaderboard exported to:\033[32m {filepath}\033[0m")
