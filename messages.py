@@ -46,8 +46,7 @@ CSV_INSTRUCTIONS = f"""
  It must have {style("title", SECONDARY)} and {style("author", SECONDARY)} columns. A {style("rating", SECONDARY)} column is optional, but encouraged.
 
  Note: If {style("rating", SECONDARY)} is included, it should be between 0 and 10, decimals welcome. This
- sets an initial placement for each book, which the brawl pit will confirm or dispel.
-"""
+ sets an initial placement for each book, which the brawl pit will confirm or dispel."""
 
 
 PIT_INSTRUCTIONS = f"""
@@ -68,19 +67,21 @@ PIT_INSTRUCTIONS = f"""
 
 
 LIMIT_REACHED = (
-    f"\033[31m Sorry, you read way too much and reached the limit of {BOOK_LIMIT} books."
-    f"\n I can't handle any more 😭.\033[0m"
+    f" {style('Sorry, you read way too much! The brawl pit has reached its limit of', ERROR)}"
+    f" {style(BOOK_LIMIT, SECONDARY)}"
+    f" {style('books.\n It physically cannot handle any more 😭.', ERROR)}"
 )
 
 EMPTY_IMPORT = (
-    f"{PROMPT}{style('No books imported. Please check file and try again.', ERROR)}"
+    f"{PROMPT}{style('WARNING:', ERROR)}"
+    f" No books imported. Please check file and try again."
 )
 
 IMPORT_INTERRUPTED = (
-    f"{PROMPT}{style('Warning:', ERROR)}"
+    f"{PROMPT}{style('WARNING:', ERROR)}"
     f" Book limit reached during import, not all books were added."
 )
 
 LIMIT_WARNING = (
-    f"{PROMPT}{style('Warning:', ERROR)} Book limit reached, no more can be added!"
+    f"{PROMPT}{style('WARNING:', ERROR)} Book limit reached, no more can be added!"
 )

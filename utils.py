@@ -5,7 +5,9 @@ from constants import PROGRESS_LABELS, SUMMARY_LABELS
 from theme import ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 
 
-def prompt(options, p=PROMPT, error_message=None):
+def prompt(p=PROMPT, options=None, error_message=None):
+    if not options:
+        options = ("y", "n")
     if not error_message:
         error_message = f"Nope, please try: {', '.join(options)}"
 

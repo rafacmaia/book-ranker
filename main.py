@@ -67,7 +67,7 @@ def startup():
         print(CSV_INSTRUCTIONS)
 
         while not state.books:
-            filepath = csv_reader(prompt=" CSV file path (q to quit): ", back_key="q")
+            filepath = csv_reader(prompt="\n CSV file path (q to quit): ", back_key="q")
             if filepath == "q":
                 quit_game()
             new_books, interrupted = import_from_csv(filepath)
@@ -98,7 +98,7 @@ def main_menu(first_run=False):
         print(MAIN_MENU)
 
         choice = prompt(
-            MAIN_OPTIONS,
+            options=MAIN_OPTIONS,
             error_message=f"Nope, I can only read options 1-{MAIN_OPTIONS[-1]}.",
         )
         next_action = ""
@@ -140,11 +140,11 @@ def add_books():
 
     while True:
         print(IMPORT_MENU)
-        choice = prompt({"1", "2", "b"})
+        choice = prompt(options=["1", "2", "b"])
 
         if choice == "1":
-            new_books, interrupted = manual_entry()
-            process_import(new_books, interrupted, method="manual")
+            new_books = manual_entry()
+            process_import(new_books, method="manual")
             break
         elif choice == "2":
             print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
@@ -152,7 +152,7 @@ def add_books():
             print(CSV_INSTRUCTIONS)
 
             filepath = csv_reader(
-                prompt=" CSV file path (b to go back): ", back_key="b"
+                prompt="\n CSV file path (b to go back): ", back_key="b"
             )
             if filepath == "b":
                 print(f"\n {rule(LINE_LENGTH - 1, DIVIDER)}")
@@ -214,13 +214,13 @@ def manual_entry():
         rating = rating if raw_rating else 5.0
         book = Book(title, author, rating)
 
-        print(style("\nAdding: ", SECONDARY))
+        print(style("\n Adding: ", SECONDARY))
         print(f"  - {format_book(book, LINE_LENGTH - 5)}")
         if raw_rating:
             print(f"  - Rating: {rating}")
 
         print()
-        confirm = prompt({"y", "n"}, p=f"{PROMPT}Confirm (y/n)? ")
+        confirm = prompt(p=f"{PROMPT}Confirm (y/n)? ")
 
         if confirm == "y":
             book.save()
@@ -235,13 +235,13 @@ def manual_entry():
             return new_books, interrupted
 
 
-def process_import(new_books, interrupted, method="CSV"):
+def process_import(new_books, interrupted=False, method="CSV"):
     """Process result form csv import, display results and relevant messages."""
     first_import = not state.books
     added = len(new_books)
 
     if added > 0:
-        state.books = Book.load_all()
+        state.books.extend(new_books)
 
         suffix = "!" if first_import or added > 100 else ":"
         plural = "s" if added > 1 else ""
@@ -272,7 +272,6 @@ def export_leaderboard():
 
     print()
     choice = prompt(
-        {"y", "n"},
         p=f"{PROMPT}Proceed with export (y/n)? ",
         error_message="Sorry, I can only understand 'y' or 'n'.",
     )
@@ -289,16 +288,15 @@ def reset_handler():
 
     print()
     export_choice = prompt(
-        {"y", "n"},
         p=f"{PROMPT}Would you like to export the leaderboard before resetting (y/n)? ",
         error_message="Sorry, I can only understand 'y' or 'n'.",
     )
+
     if export_choice == "y":
         export_to_csv()
 
     print()
     reset_choice = prompt(
-        {"y", "n"},
         p=f"{PROMPT}{style('Final warning:', ERROR)} Proceed with complete factory reset (y/n)? ",
         error_message="Sorry, I can only understand 'y' or 'n'.",
     )

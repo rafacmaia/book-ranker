@@ -46,15 +46,15 @@ def import_from_csv(filepath):
             new_books, interrupted = process_rows(reader, new_books, interrupted)
 
     except FileNotFoundError:
-        print(f" {style("Error! Couldn't find file at:", ERROR)}")
+        print(f" {PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
         print(f" {PROMPT}{filepath}")
         return new_books, interrupted
     except KeyError as e:
-        error_message = (
-            f" Error! Missing column \033[33m{e}\033[31m in CSV file. "
-            f"Required columns: \033[33m title\033[31m,\033[33m author"
+        err_msg = style(
+            f"ERROR! Missing column \033[33m{e}\033[31m in CSV file. ", ERROR
         )
-        print(style(error_message, ERROR))
+        print(f"{PROMPT}{err_msg}")
+        interrupted = True
         return new_books, interrupted
 
     return new_books, interrupted
@@ -78,7 +78,7 @@ def process_rows(reader, new_books, interrupted):
         if not title or not author:
             print(
                 style(
-                    f"Skipping row {i}: '{title if title else ' '}' by "
+                    f" Skipping row {i}: '{title if title else ' '}' by "
                     f"'{author if author else ' '}' – missing title or author",
                     ERROR,
                 )
@@ -105,7 +105,11 @@ def process_rows(reader, new_books, interrupted):
         else:
             skipped_rows += 1
 
-    print(f" Skipped {skipped_rows} books already in the system.")
+    if skipped_rows:
+        print(
+            f" Skipped {skipped_rows} book{'s' if skipped_rows > 1 else ''}"
+            f" already in the system."
+        )
     return new_books, interrupted
 
 

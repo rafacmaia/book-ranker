@@ -41,11 +41,11 @@ def run_game():
             book_a, book_b = select_opponents()
 
         print_match(match_count, book_a, book_b)
-        choice = prompt(PIT_OPTIONS)
+        choice = prompt(options=PIT_OPTIONS)
 
         while choice == "u" and previous is None:
             print(f"{PROMPT}No previous match to undo.")
-            choice = prompt(PIT_OPTIONS)
+            choice = prompt(options=PIT_OPTIONS)
 
         if choice == "u":
             opponents_selected = True  # Makes sure the interrupted match gets reprinted
@@ -157,7 +157,7 @@ def print_match(match_count, book_a, book_b, redo=False):
 
 def rematch(previous):
     print_match(previous.match, previous.a, previous.b, redo=True)
-    new_choice = prompt(["1", "2"])
+    new_choice = prompt(options=["1", "2"])
     return PendingMatch(previous.match, previous.a, previous.b, new_choice)
 
 
