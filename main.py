@@ -170,13 +170,8 @@ def add_books():
 def manual_entry():
     existing_books = {(b.title.lower(), b.author.lower()) for b in state.books}
     new_books = []
-    interrupted = False
 
     while True:
-        if len(state.books) + len(new_books) >= BOOK_LIMIT:
-            interrupted = True
-            return new_books, interrupted
-
         count = len(new_books) + 1
 
         print()
@@ -227,12 +222,17 @@ def manual_entry():
             new_books.append(book)
             existing_books.add((title.lower(), author.lower()))
 
-        next_action = prompt({"y", "n"}, p=f"{PROMPT}Add another book (y/n)? ")
+        if len(state.books) + len(new_books) >= BOOK_LIMIT:
+            print(f"\ {rule(LINE_LENGTH - 1, DIVIDER)}")
+            return new_books
+
+        next_action = prompt(p=f"{PROMPT}Add another book (y/n)? ")
+
         if next_action == "n":
             print()
             if len(new_books) > 0:
                 print(f" {rule(LINE_LENGTH - 1, DIVIDER)}")
-            return new_books, interrupted
+            return new_books
 
 
 def process_import(new_books, interrupted=False, method="CSV"):
@@ -256,14 +256,17 @@ def process_import(new_books, interrupted=False, method="CSV"):
                 )
 
         if interrupted:
+            print()
             print(IMPORT_INTERRUPTED)
-        elif len(state.books) >= BOOK_LIMIT:
+        elif len(state.books) >= BOOK_LIMIT and not first_import:
+            print()
             print(LIMIT_WARNING)
 
         press_enter()
-    elif added == 0 and method == "CSV":
+    elif added == 0 and method == "CSV" and not interrupted:
         print(EMPTY_IMPORT)
-        press_enter(new_line=False)
+        if not first_import:
+            press_enter()
 
 
 def export_leaderboard():
