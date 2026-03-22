@@ -303,23 +303,33 @@ def reset_handler():
         p=f"{PROMPT}{style('Final warning:', ERROR)} Proceed with complete factory reset (y/n)? ",
         error_message="Sorry, I can only understand 'y' or 'n'.",
     )
-    if reset_choice == "y" and reset():
-        press_enter(message="Press Enter to quit... ", new_line=False)
-        quit_game()
+
+    if reset_choice == "y":
+        success, error = reset()
+        if success:
+            print(
+                f"{PROMPT}✓ Reset complete. Restart the app to start book brawling again."
+            )
+            press_enter(message="Press Enter to quit... ", new_line=False)
+            quit_game()
+        else:
+            print(f"{PROMPT}{style(f'Reset failed: {error}.', ERROR)}")
+            press_enter(
+                message="Please try again. Press Enter for the main menu... ",
+                new_line=False,
+            )
 
 
 def reset():
     try:
         os.remove(state.db_path)
     except OSError as e:
-        print(f"{PROMPT}{style(f'Reset failed: {e}.', ERROR)}")
-        print(" Please try again. Returning to main menu.")
-        return False
+        return False, str(e)
 
     state.books = []
+    calculate_progress()
 
-    print(f"{PROMPT}✓ Reset complete. Restart the app to start book brawling again.")
-    return True
+    return True, None
 
 
 # --- QUITTING AND BACKUPS  ---
