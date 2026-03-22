@@ -42,12 +42,17 @@ def import_from_csv(filepath):
     try:
         with open(filepath, newline="", encoding="utf-8") as file:
             reader = csv.DictReader(file)
+
+            if not reader.fieldnames:
+                return new_books, interrupted
+
             reader.fieldnames = [field.lower().strip() for field in reader.fieldnames]
             new_books, interrupted = process_rows(reader, new_books, interrupted)
 
     except FileNotFoundError:
         print(f" {PROMPT}{style("ERROR! Couldn't find file at:", ERROR)}")
         print(f" {PROMPT}{filepath}")
+        interrupted = True
         return new_books, interrupted
     except KeyError as e:
         err_msg = style(
