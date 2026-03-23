@@ -206,7 +206,7 @@ def manual_entry():
 
             break
 
-        rating = rating if raw_rating else 5.0
+        rating = rating if raw_rating else 6.2
         book = Book(title, author, rating)
 
         print(style("\n Adding: ", SECONDARY))
@@ -243,10 +243,11 @@ def process_import(new_books, interrupted=False, method="CSV"):
     if added > 0:
         state.books.extend(new_books)
 
-        suffix = "!" if first_import or added > 100 else ":"
+        verb = "Imported" if method == "CSV" else "Added"
         plural = "s" if added > 1 else ""
+        suffix = "!" if first_import or added > 100 else ":"
 
-        print(f"{PROMPT}Imported {added} book{plural}{suffix}")
+        print(f"{PROMPT}{verb} {added} book{plural}{suffix}")
 
         if not first_import and added <= 100:
             for i, book in enumerate(new_books, start=1):

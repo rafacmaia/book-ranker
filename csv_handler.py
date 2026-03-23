@@ -90,7 +90,7 @@ def process_rows(reader, new_books, interrupted):
             )
 
         try:
-            rating = float(raw_rating) if raw_rating else 5.0
+            rating = float(raw_rating) if raw_rating else 6.2
             if not 0 <= rating <= 10:
                 raise ValueError(f" Rating must be between 0 and 10, got {rating}")
         except ValueError as e:
