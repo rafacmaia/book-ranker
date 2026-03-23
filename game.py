@@ -5,7 +5,7 @@ import state
 from constants import (
     PIT_OPTIONS,
 )
-from db import save_comparison
+from db.connection import save_comparison
 from messages import PIT_INSTRUCTIONS
 from scoring import calculate_elo, confidence_score
 from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY

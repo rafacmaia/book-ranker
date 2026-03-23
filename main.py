@@ -14,7 +14,7 @@ from constants import (
     TEST_MESSAGE,
 )
 from csv_handler import csv_reader, export_to_csv, import_from_csv
-from db import init_db
+from db.connection import init_db
 from game import run_game
 from leaderboard import (
     view_leaderboard,

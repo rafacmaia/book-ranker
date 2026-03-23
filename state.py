@@ -1,4 +1,4 @@
-db_path = "data/books.db"  # default db
+db_path = "data/book_brawl.db"  # default db
 debug = False
 
 books = []

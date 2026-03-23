@@ -206,20 +206,20 @@ mathematically robust, way to reflect on their books.
 
 ## 🗂️ Project Structure
 
-| File                               | Description                          |
-|------------------------------------|--------------------------------------|
-| [`main.py`](main.py)               | Entry point and main menu            |
-| [`game.py`](game.py)               | Game loop and matchmaking logic      |
-| [`scoring.py`](scoring.py)         | Elo and accuracy level calculations  |
-| [`leaderboard.py`](leaderboard.py) | Rankings display and table rendering |
-| [`models.py`](models.py)           | Book class                           |
-| [`db.py`](db.py)                   | Database setup and queries           |
-| [`csv_handler.py`](csv_handler.py) | CSV import and export handling       |
-| [`messages.py`](messages.py)       | Formatted display messages & headers |
-| [`utils.py`](utils.py)             | Styling utilities                    |
-| [`constants.py`](constants.py)     | UI strings and layout values         |
-| [`theme.py`](theme.py)             | Color and layout constants           |
-| [`state.py`](state.py)             | Global state management              |
+| File                                | Description                          |
+|-------------------------------------|--------------------------------------|
+| [`main.py`](main.py)                | Entry point and main menu            |
+| [`game.py`](game.py)                | Game loop and matchmaking logic      |
+| [`scoring.py`](scoring.py)          | Elo and accuracy level calculations  |
+| [`leaderboard.py`](leaderboard.py)  | Rankings display and table rendering |
+| [`models.py`](models.py)            | Book class                           |
+| [`connection.py`](db/connection.py) | Database setup and queries           |
+| [`csv_handler.py`](csv_handler.py)  | CSV import and export handling       |
+| [`messages.py`](messages.py)        | Formatted display messages & headers |
+| [`utils.py`](utils.py)              | Styling utilities                    |
+| [`constants.py`](constants.py)      | UI strings and layout values         |
+| [`theme.py`](theme.py)              | Color and layout constants           |
+| [`state.py`](state.py)              | Global state management              |
 
 ## 🗺️ Roadmap
 

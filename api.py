@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 import state
-from db import init_db
+from db.connection import init_db
 from leaderboard import rank_books
 from models import Book
 from scoring import calculate_progress

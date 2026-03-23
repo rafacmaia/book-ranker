@@ -1,4 +1,5 @@
 from db import get_connection
+from db.connection import get_connection
 
 
 class Book:
@@ -17,7 +18,7 @@ class Book:
     def save(self):
         with get_connection() as conn:
             cursor = conn.execute(
-                "INSERT INTO books (title, author, rating, elo) VALUES (?, ?, ?, ?)",
+                "INSERT INTO book (title, author, rating, elo) VALUES (?, ?, ?, ?)",
                 (self.title, self.author, self.rating, self.elo),
             )
             self.id = cursor.lastrowid
@@ -25,7 +26,7 @@ class Book:
     def update_elo(self, new_elo):
         self.elo = new_elo
         with get_connection() as conn:
-            conn.execute("UPDATE books SET elo = ? WHERE id = ?", (self.elo, self.id))
+            conn.execute("UPDATE book SET elo = ? WHERE id = ?", (self.elo, self.id))
 
         if self.elo < Book.elo_min:
             Book.elo_min = self.elo
@@ -44,7 +45,7 @@ class Book:
         cls.elo_max = 1200
 
         with get_connection() as conn:
-            cursor = conn.execute("SELECT title, author, rating, elo, id FROM books")
+            cursor = conn.execute("SELECT title, author, rating, elo, id FROM book")
             rows = cursor.fetchall()
 
         books = []
@@ -66,7 +67,7 @@ class Book:
         book_map = {b.id: b for b in books}
         with get_connection() as conn:
             cursor = conn.execute("""
-                SELECT winner_id, loser_id FROM comparisons
+                SELECT winner_id, loser_id FROM comparison
                 """)
             for row in cursor.fetchall():
                 w_id, l_id = row["winner_id"], row["loser_id"]
