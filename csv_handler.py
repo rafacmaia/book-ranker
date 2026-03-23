@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 
 import state
-from constants import BOOK_LIMIT
+from constants import BOOK_LIMIT, DEFAULT_RATING
 from models import Book
 from theme import ERROR, PROMPT
 from utils import style
@@ -90,7 +90,7 @@ def process_rows(reader, new_books, interrupted):
             )
 
         try:
-            rating = float(raw_rating) if raw_rating else 6.2
+            rating = float(raw_rating) if raw_rating else DEFAULT_RATING
             if not 0 <= rating <= 10:
                 raise ValueError(f" Rating must be between 0 and 10, got {rating}")
         except ValueError as e:

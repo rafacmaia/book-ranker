@@ -9,6 +9,7 @@ import state
 from constants import (
     BACKUPS_LIMIT,
     BOOK_LIMIT,
+    DEFAULT_RATING,
     MAIN_MENU,
     MAIN_OPTIONS,
     TEST_MESSAGE,
@@ -206,7 +207,7 @@ def manual_entry():
 
             break
 
-        rating = rating if raw_rating else 6.2
+        rating = rating if raw_rating else DEFAULT_RATING
         book = Book(title, author, rating)
 
         print(style("\n Adding: ", SECONDARY))

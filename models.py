@@ -1,4 +1,4 @@
-from db import get_connection
+from constants import DEFAULT_RATING
 from db.connection import get_connection
 
 
@@ -87,6 +87,8 @@ def rating_to_elo(rating):
     If scores are still within the initial 800-1200 range, use that default mapping.
     Otherwise, adjust the lower and upper bounds to match the current bounds.
     """
+    if rating is None:
+        rating = DEFAULT_RATING
     elo_min = Book.elo_min if Book.elo_min < 800 else 800
     elo_max = Book.elo_max if Book.elo_max > 1200 else 1200
     return round(elo_min + (rating - 1) * ((elo_max - elo_min) / 9))
