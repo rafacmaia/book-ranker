@@ -7,7 +7,7 @@ from constants import (
 )
 from db.comparisons_repo import insert as insert_comparison
 from messages import PIT_INSTRUCTIONS
-from scoring import calculate_elo, confidence_score
+from scoring import absolute_score, calculate_elo, confidence_score
 from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
 from utils import format_book, header, press_enter, prompt, rule, style
 
@@ -102,16 +102,18 @@ def select_opponents():
 
 
 def sampling_weight(book):
-    """Calculate selection weight based on confidence level, ensuring a minimum weight
-    of 0.1, and highly prioritizing books with fewer than a threshold number of matches.
+    """Calculate selection weight based on confidence level and absolute_score.
+
+    Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize books
+    with very few matches.
     """
     if len(state.books) <= 1:
         return 1
 
-    total_opponents = len(state.books) - 1
-    faced_opponents = len(book.opponents)
-
-    early_boost = 10 * (0.20 ** (faced_opponents / (total_opponents * 0.1)))
+    # Boost scales with library size and and absolute_score.
+    # Larger libraries require higher boosts to make a difference.
+    # Low absolute_score requires a higher boost to get early data in.
+    early_boost = (len(state.books) * 0.1) * (1 - absolute_score(book))
     confidence_weight = 1 - confidence_score(book)
     return max(0.1, confidence_weight, early_boost)
 

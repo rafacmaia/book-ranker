@@ -8,6 +8,7 @@ from constants import (
     BATCH_SIZE,
     INITIAL_BATCH_SIZE,
 )
+from game import sampling_weight
 from scoring import (
     absolute_score,
     confidence_score,
@@ -140,6 +141,7 @@ def add_columns(table, verbose):
         table.add_column("ABS", justify="left", header_style=PRIMARY)
         table.add_column("LOC", justify="left", header_style=PRIMARY)
         table.add_column("STA", justify="left", header_style=PRIMARY)
+        table.add_column("WEI", justify="left", header_style=PRIMARY)
 
 
 def add_rows(table, books, start, end, verbose):
@@ -162,6 +164,7 @@ def add_rows(table, books, start, end, verbose):
                 f"{absolute_score(b):.2f}",
                 f"{local_score(b):.2f}",
                 f"{stability_score(b):.2f}",
+                f"{sampling_weight(b):.2f}",
             )
         else:
             table.add_row(str(rank), b.title, b.author, confidence)
