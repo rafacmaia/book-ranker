@@ -8,7 +8,6 @@ from constants import (
     BATCH_SIZE,
     INITIAL_BATCH_SIZE,
 )
-from game import sampling_weight
 from scoring import (
     absolute_score,
     confidence_score,
@@ -16,6 +15,7 @@ from scoring import (
     local_score,
     stability_score,
 )
+from services.game_service import sampling_weight
 from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import header, leaderboard_summary, press_enter, rule, style
 
@@ -164,7 +164,7 @@ def add_rows(table, books, start, end, verbose):
                 f"{absolute_score(b):.2f}",
                 f"{local_score(b):.2f}",
                 f"{stability_score(b):.2f}",
-                f"{sampling_weight(b):.2f}",
+                f"{sampling_weight(b, state.books):.2f}",
             )
         else:
             table.add_row(str(rank), b.title, b.author, confidence)

@@ -1,13 +1,11 @@
-import random
 from collections import namedtuple
 
 import state
 from constants import (
     PIT_OPTIONS,
 )
-from db.comparisons_repo import insert as insert_comparison
 from messages import PIT_INSTRUCTIONS
-from scoring import absolute_score, calculate_elo, confidence_score
+from services.game_service import resolve_comparison, select_opponents
 from theme import DIVIDER, ERROR, LINE_LENGTH, PROMPT, REDO, SECONDARY
 from utils import format_book, header, press_enter, prompt, rule, style
 
@@ -32,13 +30,13 @@ def run_game():
     print_instructions()
 
     match_count = 1
-    book_a, book_b = select_opponents()
+    book_a, book_b = select_opponents(state.books)
     previous = None
     opponents_selected = True
     while True:
         if not opponents_selected:
             match_count += 1
-            book_a, book_b = select_opponents()
+            book_a, book_b = select_opponents(state.books)
 
         print_match(match_count, book_a, book_b)
         choice = prompt(options=PIT_OPTIONS)
@@ -53,7 +51,7 @@ def run_game():
             continue
 
         if previous:
-            resolve_comparison(previous.a, previous.b, previous.choice)
+            resolve_comparison(previous.a, previous.b, previous.choice, state.books)
 
         if choice in ["q", "b"]:
             return choice
@@ -72,63 +70,6 @@ def print_instructions():
 
     print(instructions, end="")
     input()
-
-
-def select_opponents():
-    """Select two books using weighted random selection.
-
-    Favor low-confidence books (i.e., books with fewer unique matches played), books
-    that have been matched against each other less often, and books with similar Elo
-    scores, to maximize information gained from each match.
-    """
-    # Calculate weights based on confidence level.
-    weights = [sampling_weight(book) for book in state.books]
-
-    book_a = random.choices(state.books, weights=weights, k=1)[0]
-
-    # Exclude book_a from opponent selection
-    remaining_weights = [
-        (b, w) for b, w in zip(state.books, weights) if b.id != book_a.id
-    ]
-
-    # Adjust weights for book_b selection based on the selected book_a
-    adjusted_weights = adjust_weights(book_a, remaining_weights)
-
-    book_b = random.choices(
-        [b for b, w in remaining_weights], weights=adjusted_weights, k=1
-    )[0]
-
-    return book_a, book_b
-
-
-def sampling_weight(book):
-    """Calculate selection weight based on confidence level and absolute_score.
-
-    Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize books
-    with very few matches.
-    """
-    if len(state.books) <= 1:
-        return 1
-
-    # Boost scales with library size and and absolute_score.
-    # Larger libraries require higher boosts to make a difference.
-    # Low absolute_score requires a higher boost to get early data in.
-    early_boost = (len(state.books) * 0.1) * (1 - absolute_score(book))
-    confidence_weight = 1 - confidence_score(book)
-    return max(0.1, confidence_weight, early_boost)
-
-
-def adjust_weights(book_a, weights):
-    # Adjust weights to prioritize rarer pairings and books with similar Elo scores.
-    # Rematch penalty: increase the multiplier to penalize rematches more aggressively
-    # Elo gap penalty: decrease the divisor to prioritize similar score ranges
-    adjusted_weights = []
-    for b, w in weights:
-        rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
-        elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
-        adjusted_weights.append(max(0.1, w / rematch_penalty / elo_gap_penalty))
-
-    return adjusted_weights
 
 
 def print_match(match_count, book_a, book_b, redo=False):
@@ -161,19 +102,3 @@ def rematch(previous):
     print_match(previous.match, previous.a, previous.b, redo=True)
     new_choice = prompt(options=["1", "2"])
     return PendingMatch(previous.match, previous.a, previous.b, new_choice)
-
-
-def resolve_comparison(book_a, book_b, selection):
-    winner = book_a if selection == "1" else book_b
-    loser = book_b if selection == "1" else book_a
-
-    new_winner_elo, new_loser_elo = calculate_elo(winner, loser)
-    insert_comparison(winner.id, loser.id)
-
-    winner.update_elo(new_winner_elo)
-    loser.update_elo(new_loser_elo)
-
-    winner.record_opponent(loser.id)
-    loser.record_opponent(winner.id)
-
-    winner.record_won_over(loser.id)
