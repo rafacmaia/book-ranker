@@ -1,6 +1,6 @@
 from models import Book
 
-ABS_SCORE_WEIGHT = 0.30
+ABS_SCORE_WEIGHT = 0.306
 LOC_SCORE_WEIGHT = 0.45
 DEN_SCORE_WEIGHT = 0.25  # density-based stability score
 
@@ -10,7 +10,7 @@ ABS_MIN_OPPONENTS = 8
 DENSITY_WINDOW = 26
 
 
-# --- CONFIDENCE SCORE CALCULATIONS ---
+# --- CONFIDENCE SCORING ---
 
 
 def calculate_progress(books):
@@ -100,7 +100,7 @@ def stability_score(book, books):
     return 1 - density
 
 
-# --- ELO SCORE CALCULATIONS ---
+# --- ELO SCORING ---
 
 
 def calculate_elo(winner, loser, books):
@@ -138,3 +138,47 @@ def get_k(book, books):
         return 16
     else:
         return 10
+
+
+# --- SELECTION WEIGHT SCORING ---
+
+
+def sampling_weight(book, books):
+    """Calculate selection weight based on confidence level and absolute_score.
+
+    Ensures a minimum weight of 0.1. Absolute_score is used to highly prioritize newer
+    book entries with very few matches.
+    """
+    if len(books) <= 1:
+        return 1
+
+    # Boost scales with library size and absolute_score: larger collections
+    # require higher boosts to make a difference, and lower absolute_score
+    # requires a higher boost to get early data in.
+    early_boost = (len(books) * 0.1) * (1 - absolute_score(book, books))
+    confidence_weight = 1 - confidence_score(book, books)
+
+    return max(0.1, confidence_weight, early_boost)
+
+
+def opponent_weights(book_a, books):
+    """Adjust weights for book_b selection based on the selected book_a.
+
+    Prioritize rarer pairings and books with similar Elo scores.
+    """
+    candidates = []
+    for b in books:
+        if b.id != book_a.id:
+            # Increase the multiplier to penalize rematches more
+            rematch_penalty = 1 + 2 * book_a.opponents.get(b.id, 0)
+
+            # Decrease the divisor to prioritize similar score ranges
+            elo_gap_penalty = 1 + abs(book_a.elo - b.elo) / 150
+
+            # Calculate the base weight based on confidence level
+            w = max(0.1, 1 - confidence_score(b, books))
+            adjusted_weight = max(0.1, w / rematch_penalty / elo_gap_penalty)
+
+            candidates.append((b, adjusted_weight))
+
+    return candidates

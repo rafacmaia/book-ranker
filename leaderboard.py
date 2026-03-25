@@ -2,48 +2,48 @@ from rich import box
 from rich.console import Console
 from rich.table import Table
 
-import state
 from constants import (
     ACCURACY_TIERS,
     BATCH_SIZE,
     INITIAL_BATCH_SIZE,
 )
-from scoring import (
+from services.scoring_service import (
     absolute_score,
+    calculate_progress,
     confidence_score,
     get_k,
     local_score,
+    sampling_weight,
     stability_score,
 )
-from services.game_service import sampling_weight
 from theme import ACCENT, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import header, leaderboard_summary, press_enter, rule, style
 
 
-def view_leaderboard(verbose=False):
+def view_leaderboard(books, verbose=False):
     """Handle the leaderboard view.
 
     Provides current library status, ranks books based on Elo scores, and displays
     rankings in batches.
     """
-    ranked_books = rank_books()
+    ranked_books = rank_books(books)
     batch_end = INITIAL_BATCH_SIZE
 
     print(header("THE LEADERBOARD", new_line=True))
 
     # Print informational summary of the user's library and current confidence level
-    print(leaderboard_summary(state.current_progress, PRIMARY))
+    print(leaderboard_summary(calculate_progress(books), PRIMARY))
     press_enter("Press Enter to view leaderboard...")
     print()
 
-    print_table(ranked_books, 0, batch_end, verbose)
+    print_table(ranked_books, 0, batch_end, books, verbose)
 
     while True:
-        next_action = table_menu(batch_end)
+        next_action = table_menu(batch_end, len(books))
 
         if next_action == "":
             batch_end += BATCH_SIZE
-            print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, verbose)
+            print_table(ranked_books, batch_end - BATCH_SIZE, batch_end, books, verbose)
         elif next_action == "?":
             print(header("Accuracy Tiers", color=ACCENT))
             print(ACCURACY_TIERS)
@@ -52,13 +52,13 @@ def view_leaderboard(verbose=False):
             return next_action
 
 
-def rank_books():
+def rank_books(books):
     """Rank all books based on their Elo score.
 
     Ties are broken by head-to-head comparisons (i.e., number of wins against other
     tied books), then by initial user rating.
     """
-    elo_sort = sorted(state.books, key=lambda b: b.elo, reverse=True)
+    elo_sort = sorted(books, key=lambda b: b.elo, reverse=True)
 
     ranked = []
     i = 0
@@ -118,13 +118,13 @@ def head_to_head_score(book, tied_books):
     return wins
 
 
-def print_table(books, start, end, verbose=False):
+def print_table(ranked_books, start, end, books, verbose=False):
     table = Table(
         box=box.HORIZONTALS, border_style="bright_blue", width=LINE_LENGTH + 1
     )
 
     add_columns(table, verbose)
-    add_rows(table, books, start, end, verbose)
+    add_rows(table, ranked_books, start, end, books, verbose)
 
     Console().print(table)
 
@@ -144,14 +144,10 @@ def add_columns(table, verbose):
         table.add_column("WEI", justify="left", header_style=PRIMARY)
 
 
-def add_rows(table, books, start, end, verbose):
-    for rank, b in books[start:end]:
-        con_score = confidence_score(b)
+def add_rows(table, ranked_books, start, end, books, verbose):
+    for rank, b in ranked_books[start:end]:
+        con_score = confidence_score(b, books)
         confidence = confidence_label(con_score)
-
-        # DEBUG MODE: Print actual confidence value instead of label
-        if state.debug:
-            confidence = str(round(con_score, 2))
 
         if verbose:
             table.add_row(
@@ -160,11 +156,11 @@ def add_rows(table, books, start, end, verbose):
                 b.author,
                 f"{con_score:.2f}",
                 str(b.elo),
-                str(get_k(b)),
-                f"{absolute_score(b):.2f}",
-                f"{local_score(b):.2f}",
-                f"{stability_score(b):.2f}",
-                f"{sampling_weight(b, state.books):.2f}",
+                str(get_k(b, books)),
+                f"{absolute_score(b, books):.2f}",
+                f"{local_score(b, books):.2f}",
+                f"{stability_score(b, books):.2f}",
+                f"{sampling_weight(b, books):.2f}",
             )
         else:
             table.add_row(str(rank), b.title, b.author, confidence)
@@ -183,8 +179,8 @@ def confidence_label(confidence):
         return "✅  Very High"
 
 
-def table_menu(batch_end):
-    if batch_end < len(state.books):
+def table_menu(batch_end, book_count):
+    if batch_end < book_count:
         print(
             f"{' ' * (LINE_LENGTH - 20)}"
             f"{style(f'↵ → See next {BATCH_SIZE}', styling=SECONDARY)}"
@@ -199,7 +195,7 @@ def table_menu(batch_end):
     choice = input(f"{' ' * (LINE_LENGTH - 8)}{PROMPT}").strip().lower()
 
     while choice not in ("?", "b", "e", "q"):
-        if batch_end < len(state.books) and choice == "":
+        if batch_end < book_count and choice == "":
             break
         choice = input(
             f"{' ' * (LINE_LENGTH - 40)}"

@@ -33,7 +33,7 @@ from messages import (
     import_interrupted,
 )
 from models import Book
-from scoring import calculate_progress
+from services.scoring_service import calculate_progress
 from theme import ACCENT, DIVIDER, ERROR, LINE_LENGTH, PRIMARY, PROMPT, SECONDARY
 from utils import (
     format_book,
@@ -54,6 +54,8 @@ def startup():
 
     If no books are in the system, prompt the user to import from a CSV.
     """
+    state.books = get_all()
+
     os.system("cls" if os.name == "nt" else "clear")
     print()
     print(TITLE)
@@ -80,7 +82,7 @@ def startup():
 
         print()
 
-    calculate_progress()
+    state.progress = calculate_progress(state.books)
     main_menu(first_run)
 
 
@@ -88,9 +90,7 @@ def main_menu(first_run=False):
     """Display the main menu and handle user input."""
     while True:
         if not first_run:
-            confidence_progress = (
-                f"  PROGRESS: {progress_bar(state.current_progress, 20)}  "
-            )
+            confidence_progress = f"  PROGRESS: {progress_bar(state.progress, 20)}  "
 
             padding = (LINE_LENGTH - len(confidence_progress) - 1) // 2
             print(
@@ -109,13 +109,13 @@ def main_menu(first_run=False):
         next_action = ""
 
         if choice == "1":
-            next_action = run_game()
-            calculate_progress()
+            next_action = run_game(state.books)
+            state.progress = calculate_progress(state.books)
         elif choice in ("2", "2 -v"):
-            next_action = view_leaderboard(verbose="-v" in choice)
+            next_action = view_leaderboard(state.books, verbose="-v" in choice)
         elif choice == "3":
             add_books()
-            calculate_progress()
+            state.progress = calculate_progress(state.books)
         elif choice == "4":
             export_leaderboard()
         elif choice == "5":
@@ -277,7 +277,7 @@ def process_import(new_books, interrupted=False, method="CSV"):
 
 def export_leaderboard():
     print(header("EXPORT LEADERBOARD", new_line=True))
-    print(leaderboard_summary(state.current_progress, PRIMARY))
+    print(leaderboard_summary(state.progress, PRIMARY))
 
     print()
     choice = prompt(
@@ -333,7 +333,7 @@ def reset():
         return False, str(e)
 
     state.books = []
-    calculate_progress()
+    state.progress = calculate_progress(state.books)
 
     return True, None
 
@@ -370,8 +370,6 @@ def backup_cleanup():
 
 
 if __name__ == "__main__":
-    if "--debug" in sys.argv:
-        state.debug = True
     if "--test" in sys.argv:
         # state.db_path = "data/test.db"
         state.db_path = "data/test2.db"
@@ -381,5 +379,4 @@ if __name__ == "__main__":
         state.db_path = "data/demo2.db"
 
     init_db()
-    state.books = get_all()
     startup()

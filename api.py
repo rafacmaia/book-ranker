@@ -6,15 +6,14 @@ import state
 from db.books_repo import get_all
 from db.connection import init_db
 from leaderboard import rank_books
-from models import Book
-from scoring import calculate_progress
+from services.scoring_service import calculate_progress
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     init_db()
     state.books = get_all()
-    calculate_progress()
+    state.progress = calculate_progress(state.books)
     yield
 
 

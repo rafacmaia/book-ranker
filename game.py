@@ -1,6 +1,5 @@
 from collections import namedtuple
 
-import state
 from constants import (
     PIT_OPTIONS,
 )
@@ -12,7 +11,7 @@ from utils import format_book, header, press_enter, prompt, rule, style
 PendingMatch = namedtuple("PendingMatch", ["match", "a", "b", "choice"])
 
 
-def run_game():
+def run_game(books):
     """Run the game's main loop.
 
     Select two books for comparison, prompt the user for choice between the two,
@@ -20,23 +19,23 @@ def run_game():
     """
     print(header("BRAWL PIT", new_line=True))
 
-    if len(state.books) <= 1:
+    if len(books) <= 1:
         print(
             f" {style('Not enough books in the pit.', ERROR)} Add some more and try again."
         )
         press_enter()
         return None
 
-    print_instructions()
+    print_instructions(len(books))
 
     match_count = 1
-    book_a, book_b = select_opponents(state.books)
+    book_a, book_b = select_opponents(books)
     previous = None
     opponents_selected = True
     while True:
         if not opponents_selected:
             match_count += 1
-            book_a, book_b = select_opponents(state.books)
+            book_a, book_b = select_opponents(books)
 
         print_match(match_count, book_a, book_b)
         choice = prompt(options=PIT_OPTIONS)
@@ -51,7 +50,7 @@ def run_game():
             continue
 
         if previous:
-            resolve_comparison(previous.a, previous.b, previous.choice, state.books)
+            resolve_comparison(previous.a, previous.b, previous.choice, books)
 
         if choice in ["q", "b"]:
             return choice
@@ -60,9 +59,9 @@ def run_game():
         opponents_selected = False
 
 
-def print_instructions():
+def print_instructions(book_count):
     instructions = (
-        f" {style(len(state.books), SECONDARY)} books enter."
+        f" {style(book_count, SECONDARY)} books enter."
         f" {style('One wins.', SECONDARY)}\n"
     )
 
