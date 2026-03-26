@@ -25,15 +25,18 @@ def get_current_user(
         payload = jwt.decode(
             token, public_key, algorithms=["RS256"], options={"verify_audience": False}
         )
-        return payload["sub"]  # Clerk user ID lives in the "sub" claim
+        sub = payload.get("sub")
+        if not sub:
+            raise HTTPException(status_code=401, detail="Token missing required claim")
+        return sub  # Clerk user ID lives in the "sub" claim
 
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
         )
-    except jwt.InvalidTokenError as e:
+    except jwt.InvalidTokenError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token: {e}"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
 
 
@@ -42,8 +45,12 @@ def _get_public_key(token):
     jwks = _get_jwks()
     headers = jwt.get_unverified_header(token)
 
+    headers_kid = headers.get("kid")
+    if not headers_kid:
+        raise HTTPException(status_code=401, detail="Invalid token: missing kid")
+
     for key in jwks["keys"]:
-        if key["kid"] == headers["kid"]:
+        if key.get("kid") == headers_kid:
             return RSAAlgorithm.from_jwk(key)
 
     raise HTTPException(
