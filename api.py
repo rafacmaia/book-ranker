@@ -1,6 +1,7 @@
+import sqlite3
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel
 
 import state
@@ -20,7 +21,7 @@ class UserSync(BaseModel):
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_app: FastAPI):
     init_db(state.db_path)
     state.books = get_all()
     state.progress = calculate_progress(state.books)
@@ -34,7 +35,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/leaderboard")
-def get_leaderboard(user_id: str = Depends(get_current_user)):
+def get_leaderboard(_user_id: str = Depends(get_current_user)):
     ranked_books = rank_books(state.books)
     return [
         {
@@ -55,7 +56,10 @@ def sync_user(data: UserSync, clerk_id: str = Depends(get_current_user)):
     user = users_repo.get_by_clerk_id(clerk_id)
 
     if not user:
-        user_id = users_repo.insert(clerk_id, data.email, data.username)
+        try:
+            user_id = users_repo.insert(clerk_id, data.email, data.username)
+        except sqlite3.IntegrityError:
+            raise HTTPException(status_code=409, detail="User already exists")
         return {"id": user_id, "clerk_id": clerk_id, "created": True}
 
     return {"id": user["id"], "clerk_id": clerk_id, "created": False}

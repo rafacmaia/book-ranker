@@ -13,7 +13,7 @@ def get_connection(path=None):
 
 def init_db(path):
     with get_connection(path) as conn:
-        conn.execute("""    
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS user (
                 id        INTEGER PRIMARY KEY AUTOINCREMENT,
                 username  TEXT    NOT NULL UNIQUE,

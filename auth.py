@@ -23,7 +23,7 @@ def get_current_user(
     try:
         public_key = _get_public_key(token)
         payload = jwt.decode(
-            token, public_key, algorithms=["RS256"], options={"verify_signature": False}
+            token, public_key, algorithms=["RS256"], options={"verify_audience": False}
         )
         return payload["sub"]  # Clerk user ID lives in the "sub" claim
 
