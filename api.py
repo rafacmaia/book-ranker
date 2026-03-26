@@ -1,8 +1,9 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 
 import state
+from auth import get_current_user
 from db.books_repo import get_all
 from db.connection import init_db
 from services.ranking_service import rank_books
@@ -21,7 +22,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.get("/rankings")
-def get_rankings():
+def get_rankings(user_id: str = Depends(get_current_user)):
     ranked_books = rank_books(state.books)
     return [
         {
