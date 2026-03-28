@@ -1,17 +1,26 @@
+import math
+
 from models import Book
 
-ABS_SCORE_WEIGHT = 0.306
+ABS_SCORE_WEIGHT = 0.30
 LOC_SCORE_WEIGHT = 0.45
 DEN_SCORE_WEIGHT = 0.25  # density-based stability score
 
-LOC_LOWER_BOUND = 0.35
-LOC_UPPER_BOUND = 0.65
 ABS_MIN_OPPONENTS = 8
-DENSITY_WINDOW = 26
+ABS_MIN_PERCENTAGE = 0.10
+LOCAL_WINDOW = 0.10
+DENSITY_WINDOW = 24
+
 K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (1.0, 16)]
 
 
 # ====== CONFIDENCE SCORING
+
+if not math.isclose(ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + DEN_SCORE_WEIGHT, 1):
+    raise ValueError(
+        "Score weights must sum to 1.0, got "
+        f"{ABS_SCORE_WEIGHT + LOC_SCORE_WEIGHT + DEN_SCORE_WEIGHT}"
+    )
 
 
 def calculate_progress(books):
@@ -54,7 +63,7 @@ def _absolute_score(book, books):
     library size.
     """
     absolute_cap = (
-        max(len(books) * 0.1, ABS_MIN_OPPONENTS)
+        max(len(books) * ABS_MIN_PERCENTAGE, ABS_MIN_OPPONENTS)
         if len(books) > ABS_MIN_OPPONENTS
         else 1
     )
@@ -71,7 +80,7 @@ def _local_score(book, books):
     for opp in books:
         if (
             opp.id != book.id
-            and LOC_LOWER_BOUND <= expected_score(book.elo, opp.elo) <= LOC_UPPER_BOUND
+            and abs(_expected_score(book.elo, opp.elo) - 0.5) <= LOCAL_WINDOW
         ):
             relevant_opponents += 1
             if opp.id in book.opponents:
@@ -89,7 +98,7 @@ def _stability_score(book, books):
     tight_neighbors = sum(
         1
         for opp in books
-        if opp.id != book.id and abs(book.elo - opp.elo) < DENSITY_WINDOW
+        if opp.id != book.id and abs(book.elo - opp.elo) <= DENSITY_WINDOW
     )
 
     upper_proximity = max(0, 1 - (Book.elo_max - book.elo) / DENSITY_WINDOW)
@@ -118,7 +127,7 @@ def score_breakdown(book, books):
 
     k_value = next(k for threshold, k in K_TIERS if con_score <= threshold)
 
-    early_boost = (len(books) * 0.1) * (1 - abs_score)
+    early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - abs_score)
     selection_weight = max(0.1, 1 - con_score, early_boost)
 
     return {
@@ -177,7 +186,7 @@ def sampling_weight(book, books):
     # Boost scales with library size and absolute_score: larger collections
     # require higher boosts to make a difference, and lower absolute_score
     # requires a higher boost to get early data in.
-    early_boost = (len(books) * 0.1) * (1 - absolute_score(book, books))
+    early_boost = (len(books) * ABS_MIN_PERCENTAGE) * (1 - _absolute_score(book, books))
     confidence_weight = 1 - confidence_score(book, books)
 
     return max(0.1, confidence_weight, early_boost)
