@@ -47,8 +47,7 @@ def startup():
     state.books = get_all()
 
     os.system("cls" if os.name == "nt" else "clear")
-    print()
-    print(TITLE)
+    print("\n" + TITLE)
 
     # Warn if running in test mode, which uses a separate test database
     if "test" in state.db_path:
@@ -81,13 +80,8 @@ def main_menu(first_run=False):
     while True:
         if not first_run:
             confidence_progress = f"  PROGRESS: {progress_bar(state.progress, 20)}  "
-
-            padding = (LINE_WIDTH - len(confidence_progress) - 1) // 2
-            print(
-                f" {rule(padding, ACCENT)}"
-                f"{style(confidence_progress, ACCENT)}"
-                f"{rule(padding, ACCENT)}"
-            )
+            line = rule((LINE_WIDTH - len(confidence_progress) - 1) // 2, ACCENT)
+            print(f" {line}{style(confidence_progress, ACCENT)}{line}")
 
         print(header("MAIN MENU"))
         print(MAIN_MENU)

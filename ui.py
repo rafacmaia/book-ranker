@@ -1,18 +1,19 @@
 # ====== CONFIG CONSTANTS
-from config import BOOK_LIMIT
 
 LINE_WIDTH = 86  # Keep it to an even number
 
 BACKUPS_LIMIT = 5
 
 PROGRESS_TIERS = [0.20, 0.45, 0.65, 0.85, 0.95, 1.00]
+ACCURACY_TIERS = [0.10, 0.30, 0.65, 0.85, 1.00]
 
 INITIAL_BATCH_SIZE = 50
 BATCH_SIZE = 50
 
 
-# ====== COLOR THEME
+# ====== COLOR THEME & INPUT SYMBOL
 
+PROMPT = "\033[1;33m > \033[0m"
 
 PRIMARY = "bold green"
 SECONDARY = "bold yellow"
@@ -81,9 +82,8 @@ def _ansi(styling=None):
     return "\033[" + ";".join(sections) + "m"
 
 
-# ====== TOP-LEVEL DISPLAY: HEADERS, MENUS, INPUT, SIGNATURE
+# ====== TOP-LEVEL DISPLAY: HEADERS, MENUS, SIGNATURE
 
-PROMPT = "\033[1;33m > \033[0m"
 
 TITLE = (
     f"{rule((LINE_WIDTH // 2 - 7), PRIMARY)}"
@@ -118,14 +118,14 @@ IMPORT_MENU = f""" How would you like to import new books?
 SIGNATURE = "© 2026 Zou Labs🐈‍⬛"
 
 GOODBYE = (
-    f"{rule((LINE_WIDTH // 2 - 16), PRIMARY)}"
-    f"{style(' 📚 Goodbye! Keep on reading 📚 ', PRIMARY)}"
-    f"{rule((LINE_WIDTH // 2 - 16), PRIMARY)}\n"
+    f"{rule((LINE_WIDTH // 2 - 7), PRIMARY)}"
+    f"{style(' 📚 GOODBYE 📚 ', PRIMARY)}"
+    f"{rule((LINE_WIDTH // 2 - 8), PRIMARY)}\n"
     f"{' ' * (LINE_WIDTH - 19)}{style(SIGNATURE, 'dim')}"
 )
 
 
-# ====== INFORMATIONAL MESSAGES
+# ====== INSTRUCTIONS
 
 
 ONBOARDING = f""" {style("Welcome to Book Brawl", SECONDARY)}, where books face off for the ultimate ranking!
@@ -153,11 +153,21 @@ CSV_INSTRUCTIONS = f"""
  sets an initial placement for each book, which the brawl pit will confirm or dispel."""
 
 
-ACCURACY_TIERS = """    🔴 Very Low   — Early data, ranking mostly based on initial rating
-    🟠 Low        — Some data, broad tier is likely correct (top/mid/bottom)
-    🟡 Moderate   — General position is fairly reliable, exact rank still shifting
-    🟢 High       — Position is well established, likely within ~5 spots
-    ✅  Very High  — Locked in, unlikely to shift significantly"""
+# ====== ACCURACY & PROGRESS LABELS
+
+ACCURACY_LABELS = [
+    (ACCURACY_TIERS[0], "🔴 Very Low"),
+    (ACCURACY_TIERS[1], "🟠 Low"),
+    (ACCURACY_TIERS[2], "🟡 Moderate"),
+    (ACCURACY_TIERS[3], "🟢 High"),
+    (ACCURACY_TIERS[4], "✅  Very High"),
+]
+
+ACCURACY_EXPLAINER = f"""  {ACCURACY_LABELS[0][1]}  — Early data, ranking mostly based on initial rating
+  {ACCURACY_LABELS[1][1]}       — Some data, broad tier is likely correct (top/mid/bottom)
+  {ACCURACY_LABELS[2][1]}  — General position is fairly reliable, exact rank still shifting
+  {ACCURACY_LABELS[3][1]}      — Position is well established, likely within ~5 spots
+  {ACCURACY_LABELS[4][1]} — Locked in, unlikely to shift  by more than 1 or 2 spots"""
 
 # Make sure labels have an odd number of chars to fit the display better.
 PROGRESS_LABELS = [
@@ -198,6 +208,7 @@ SUMMARY_LABELS = [
 
 
 # ====== WARNINGS
+
 
 TEST_MESSAGE = (
     f"{' ' * (LINE_WIDTH // 2 - 13)}\033[1;31m⚠️ RUNNING IN TEST MODE ⚠️\033[1;0m"

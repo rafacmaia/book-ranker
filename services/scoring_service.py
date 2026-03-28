@@ -8,6 +8,7 @@ LOC_LOWER_BOUND = 0.35
 LOC_UPPER_BOUND = 0.65
 ABS_MIN_OPPONENTS = 8
 DENSITY_WINDOW = 26
+K_TIERS = [(0.25, 40), (0.5, 32), (0.75, 24), (1.0, 16)]
 
 
 # ====== CONFIDENCE SCORING
@@ -105,15 +106,15 @@ def stability_score(book, books):
 
 def calculate_elo(winner, loser, books):
     """Calculates each book's new Elo scores after a match."""
-    expected_w = expected_score(winner.elo, loser.elo)
-    expected_l = expected_score(loser.elo, winner.elo)
-    new_winner_elo = round(winner.elo + get_k(winner, books) * (1 - expected_w))
-    new_loser_elo = round(loser.elo + get_k(loser, books) * (0 - expected_l))
+    expected_w = _expected_score(winner.elo, loser.elo)
+    expected_l = _expected_score(loser.elo, winner.elo)
+    new_winner_elo = round(winner.elo + _get_k(winner, books) * (1 - expected_w))
+    new_loser_elo = round(loser.elo + _get_k(loser, books) * (0 - expected_l))
 
     return new_winner_elo, new_loser_elo
 
 
-def expected_score(elo_a, elo_b):
+def _expected_score(elo_a, elo_b):
     """Calculates the expected score of a book given the Elo of a potential opponent."""
     return 1 / (1 + 10 ** ((elo_b - elo_a) / 400))
 
@@ -124,20 +125,11 @@ def get_k(book, books):
     Calculation is based on the percentage of unique opponents, i.e., confidence level.
     """
     if len(books) <= 1:
-        return 40
+        return K_TIERS[0][1]
 
     confidence = confidence_score(book, books)
 
-    if confidence < 0.2:
-        return 40
-    elif confidence < 0.4:
-        return 32
-    elif confidence < 0.6:
-        return 24
-    elif confidence < 0.8:
-        return 16
-    else:
-        return 10
+    return next(k for threshold, k in K_TIERS if confidence <= threshold)
 
 
 # --- SELECTION WEIGHT SCORING ---

@@ -14,7 +14,8 @@ from services.scoring_service import (
 )
 from ui import (
     ACCENT,
-    ACCURACY_TIERS,
+    ACCURACY_EXPLAINER,
+    ACCURACY_LABELS,
     BATCH_SIZE,
     ERROR,
     INITIAL_BATCH_SIZE,
@@ -56,7 +57,7 @@ def view_leaderboard(books, verbose=False):
             )
         elif next_action == "?":
             print(header("Accuracy Tiers", color=ACCENT))
-            print(ACCURACY_TIERS)
+            print(ACCURACY_EXPLAINER)
             print(f" {rule(LINE_WIDTH - 1, ACCENT)}")
         else:
             return next_action
@@ -109,16 +110,7 @@ def _add_rows(table, ranked_books, start, end, books, verbose):
 
 
 def _confidence_label(confidence):
-    if confidence < 0.1:
-        return "🔴 Very Low"
-    elif confidence < 0.3:
-        return "🟠 Low"
-    elif confidence < 0.60:
-        return "🟡 Moderate"
-    elif confidence < 0.85:
-        return "🟢 High"
-    else:
-        return "✅  Very High"
+    return next(label for tier, label in ACCURACY_LABELS if confidence <= tier)
 
 
 def _table_menu(batch_end, book_count):
