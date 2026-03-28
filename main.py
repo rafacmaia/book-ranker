@@ -174,13 +174,14 @@ def backup_cleanup(limit, db_path):
 
 
 if __name__ == "__main__":
-    if "--test" in sys.argv:
-        # state.db_path = "data/test.db"
-        state.db_path = "data/test2.db"
+    if "--beta" in sys.argv:
+        state.db_path = "data/beta.db"
     if "--demo1" in sys.argv:
         state.db_path = "data/demo1.db"
     if "--demo2" in sys.argv:
         state.db_path = "data/demo2.db"
+    if "--test" in sys.argv:
+        state.db_path = "data/test.db"
 
     init_db(state.db_path)
     startup()

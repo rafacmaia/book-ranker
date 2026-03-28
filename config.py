@@ -6,7 +6,7 @@ load_dotenv()
 
 # ====== APP CONFIG
 
-BOOK_LIMIT = 20
+BOOK_LIMIT = 2000
 DEFAULT_RATING = 6.2
 
 # ====== CLERK AUTH
