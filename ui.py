@@ -91,14 +91,19 @@ TITLE = (
     f"{rule((LINE_WIDTH // 2 - 7), PRIMARY)}"
 )
 
+ONBOARDING_MENU = f""" {style("1", SECONDARY)} → Manual entry
+ {style("2", SECONDARY)} → Import from CSV
+ {style("q", SECONDARY)} → Quit
+"""
+
 MAIN_OPTIONS = ["1", "2", "2 -v", "3", "4", "5", "q", "6"]
 
-MAIN_MENU = """ 1. Play
- 2. Leaderboard
- 3. Add New Books
- 4. Export Leaderboard
- 5. Factory Reset
- 6. Tap Out
+MAIN_MENU = f""" {style("1", SECONDARY)} → Play
+ {style("2", SECONDARY)} → Leaderboard
+ {style("3", SECONDARY)} → Add New Books
+ {style("4", SECONDARY)} → Export Leaderboard
+ {style("5", SECONDARY)} → Factory Reset
+ {style("6", SECONDARY)} → Tap Out
 """
 
 PIT_MENU = f"""{style("Match options:", SECONDARY)}
@@ -110,10 +115,17 @@ PIT_MENU = f"""{style("Match options:", SECONDARY)}
 
 PIT_OPTIONS = ["1", "2", "u", "b", "q"]
 
-IMPORT_MENU = f""" How would you like to import new books?
-   {style("1", SECONDARY)} → Manual entry
-   {style("2", SECONDARY)} → Import from CSV
-   {style("b", SECONDARY)} → Back to main menu"""
+LEADERBOARD_MENU = [
+    style(f"↵ → See next {BATCH_SIZE}", styling=SECONDARY),
+    "? → Accuracy tiers",
+    "b → Main menu",
+    "e → Export",
+    "q → Quit",
+]
+
+IMPORT_MENU = f""" {style("1", SECONDARY)} → Manual entry
+ {style("2", SECONDARY)} → Import from CSV
+ {style("b", SECONDARY)} → Back to main menu"""
 
 SIGNATURE = "© 2026 Zou Labs🐈‍⬛"
 
@@ -130,8 +142,9 @@ GOODBYE = (
 
 ONBOARDING = f""" {style("Welcome to Book Brawl", SECONDARY)}, where books face off for the ultimate ranking!
 
- To start the search for the one book to rule them all, please provide the path to a
- CSV file of all your contenders."""
+ To start the search for {style("the one book to rule them all", SECONDARY)}, we must add some contenders.
+ The brawl pit accepts manual entry or import from a CSV file.
+"""
 
 PIT_INSTRUCTIONS = f"""
  Books will be repeatedly paired against each other, and each time you'll be asked:
@@ -146,10 +159,19 @@ PIT_INSTRUCTIONS = f"""
 
  {style("Press Enter to launch the pit... ", SECONDARY)}"""
 
-CSV_INSTRUCTIONS = f""" 
- It must have {style("title", SECONDARY)} and {style("author", SECONDARY)} columns. A {style("rating", SECONDARY)} column is optional, but encouraged.
+MANUAL_INSTRUCTIONS = f""" 
+ {rule(LINE_WIDTH - 1, DIVIDER)}
+ Please enter the {style("title", SECONDARY)}, {style("author", SECONDARY)}, and an optional {style("rating", SECONDARY)} (1-10, decimals welcome) of
+ each book you'd like to add. 
+ 
+ {style("When you're done", SECONDARY)}, leave the {style("title", SECONDARY)} blank and press {style("Enter", SECONDARY)} to continue."""
 
- Note: If {style("rating", SECONDARY)} is included, it should be between 0 and 10, decimals welcome. This
+CSV_INSTRUCTIONS = f"""
+ {rule(LINE_WIDTH - 1, DIVIDER)}
+ Please provide the path to your CSV file. It must have {style("title", SECONDARY)} and {style("author", SECONDARY)} columns.
+ A {style("rating", SECONDARY)} column is optional (but encouraged).
+
+ {style("Note:", SECONDARY)} If {style("rating", SECONDARY)} is included, it should be between 1 and 10, decimals welcome. This
  sets an initial placement for each book, which the brawl pit will confirm or dispel."""
 
 

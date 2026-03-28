@@ -12,6 +12,9 @@ from ui import (
     IMPORT_MENU,
     LIMIT_WARNING,
     LINE_WIDTH,
+    MANUAL_INSTRUCTIONS,
+    ONBOARDING,
+    ONBOARDING_MENU,
     PRIMARY,
     PROMPT,
     SECONDARY,
@@ -25,9 +28,43 @@ from utils import format_book, header, press_enter, prompt
 # ====== ADDING BOOKS
 
 
+def onboarding(books):
+    """Handle the onboarding process of adding books for the first time."""
+    print(ONBOARDING)
+
+    while not books:
+        print(ONBOARDING_MENU)
+        choice = prompt(options=["1", "2", "q"])
+
+        if choice == "q":
+            return False
+        elif choice == "1":
+            new_books = _manual_entry(books)
+            _process_import(new_books, books, method="manual")
+            print()
+        elif choice == "2":
+            print(CSV_INSTRUCTIONS)
+
+            filepath = csv_reader(
+                prompt=f"\n {style('CSV file path (b to go back): ', SECONDARY)}",
+                back_key="b",
+            )
+
+            if filepath == "b":
+                print("\n" + rule(LINE_WIDTH - 1, DIVIDER))
+                continue
+
+            new_books, interrupted = import_from_csv(filepath, books)
+            _process_import(new_books, books, interrupted)
+
+            print()
+
+    return True
+
+
 def add_books(books):
     """Add new books to the library either through a CSV import or manual entry."""
-    print(header("IMPORT NEW BOOKS", new_line=True))
+    print(header("BOOK ENTRY", new_line=True))
 
     if len(books) >= BOOK_LIMIT:
         print(limit_reached(BOOK_LIMIT))
@@ -38,36 +75,39 @@ def add_books(books):
         print(IMPORT_MENU)
         choice = prompt(options=["1", "2", "b"])
 
-        if choice == "1":
+        if choice == "b":
+            return
+        elif choice == "1":
             new_books = _manual_entry(books)
-            process_import(new_books, books, method="manual")
+            _process_import(new_books, books, method="manual")
             break
         elif choice == "2":
-            print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
-            print(" Please provide the path to your CSV file to sync new books.")
             print(CSV_INSTRUCTIONS)
 
             filepath = csv_reader(
                 prompt=f"\n {style('CSV file path (b to go back):', SECONDARY)} ",
                 back_key="b",
             )
+
             if filepath == "b":
                 print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
                 continue
 
             print(f"\n {style('Processing file...', SECONDARY)}")
             new_books, interrupted = import_from_csv(filepath, books)
+
             print()
-            process_import(new_books, books, interrupted, method="CSV")
+            _process_import(new_books, books, interrupted, method="CSV")
             break
-        elif choice == "b":
-            return
 
 
 def _manual_entry(books):
     """Add new books to the library one at a time via user input."""
     existing_books = {(b.title.lower(), b.author.lower()) for b in books}
     new_books = []
+
+    print(MANUAL_INSTRUCTIONS)
+    press_enter(message="Press Enter to start... ")
 
     while True:
         count = len(new_books) + 1
@@ -80,6 +120,11 @@ def _manual_entry(books):
         )
 
         title = input(style(" Title:  ", SECONDARY)).strip()
+
+        if not title:
+            print(f"\n {rule(LINE_WIDTH - 1, DIVIDER)}")
+            return new_books
+
         author = input(style(" Author: ", SECONDARY)).strip()
 
         if (title.lower(), author.lower()) in existing_books:
@@ -88,17 +133,15 @@ def _manual_entry(books):
 
         rating = None
         while True:
-            raw_rating = input(style(" Rating (0-10, ↵ to skip): ", SECONDARY)).strip()
+            raw_rating = input(style(" Rating (1-10, ↵ to skip): ", SECONDARY)).strip()
 
             try:
                 if raw_rating:
                     rating = float(raw_rating)
-                    if not 0 <= rating <= 10:
+                    if not 1 <= rating <= 10:
                         raise ValueError()
             except ValueError:
-                error_message = (
-                    "Nope, rating must be between 0 and 10 (decimals allowed)."
-                )
+                error_message = "Nope, rating must be between 1 and 10 (decimals allowed), or blank."
                 print(f"{PROMPT}{error_message}")
                 continue
 
@@ -107,13 +150,12 @@ def _manual_entry(books):
         rating = rating if raw_rating else DEFAULT_RATING
         book = Book(title, author, rating)
 
-        print(style("\n Adding: ", SECONDARY))
-        print(f"  {style('–', SECONDARY)} {format_book(book, LINE_WIDTH - 5)}")
+        print(style("\n Adding:", SECONDARY), format_book(book, LINE_WIDTH - 9))
         if raw_rating:
-            print(f"  - Rating: {rating}")
+            print(f" {style('Rating:', SECONDARY)} {rating}")
 
         print()
-        confirm = prompt(p=f"{PROMPT}Confirm (y/n)? ")
+        confirm = prompt(p=f"{PROMPT}{style('Confirm (y/n)? ', SECONDARY)}")
 
         if confirm == "y":
             insert(book)
@@ -124,16 +166,8 @@ def _manual_entry(books):
             print(f"\ {rule(LINE_WIDTH - 1, DIVIDER)}")
             return new_books
 
-        next_action = prompt(p=f"{PROMPT}Add another book (y/n)? ")
 
-        if next_action == "n":
-            print()
-            if len(new_books) > 0:
-                print(f" {rule(LINE_WIDTH - 1, DIVIDER)}")
-            return new_books
-
-
-def process_import(new_books, books, interrupted=False, method="CSV"):
+def _process_import(new_books, books, interrupted=False, method="CSV"):
     """Process import/new entries, display results and relevant messages."""
     first_import = not books
     added = len(new_books)

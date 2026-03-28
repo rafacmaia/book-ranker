@@ -4,27 +4,24 @@ import sys
 from datetime import datetime
 
 import state
-from csv_handler import csv_reader, export_to_csv, import_from_csv
+from csv_handler import export_to_csv
 from db.books_repo import get_all
 from db.connection import init_db
 from game import run_game
 from leaderboard import (
     view_leaderboard,
 )
-from library_management import add_books, process_import, reset_handler
+from library_management import add_books, onboarding, reset_handler
 from services.scoring_service import calculate_progress
 from ui import (
     ACCENT,
     BACKUPS_LIMIT,
-    CSV_INSTRUCTIONS,
     GOODBYE,
     LINE_WIDTH,
     MAIN_MENU,
     MAIN_OPTIONS,
-    ONBOARDING,
     PRIMARY,
     PROMPT,
-    SECONDARY,
     TEST_MESSAGE,
     TITLE,
     rule,
@@ -49,27 +46,15 @@ def startup():
     os.system("cls" if os.name == "nt" else "clear")
     print("\n" + TITLE)
 
-    # Warn if running in test mode, which uses a separate test database
+    # Warn if running in test mode (i.e., running on a test database)
     if "test" in state.db_path:
         print(TEST_MESSAGE)
 
-    # First run, no books in the system - prompt for CSV import
+    # First run, no books in the system - prompt for book entry
     first_run = not state.books
     if first_run:
-        print(ONBOARDING)
-        print(CSV_INSTRUCTIONS)
-
-        while not state.books:
-            filepath = csv_reader(
-                prompt=f"\n {style('CSV file path (q to quit): ', SECONDARY)}",
-                back_key="q",
-            )
-            if filepath == "q":
-                quit_game(state.books, state.db_path)
-            new_books, interrupted = import_from_csv(filepath, state.books)
-            process_import(new_books, state.books, interrupted)
-
-        print()
+        if not onboarding(state.books):
+            quit_game(state.books, state.db_path)
 
     state.progress = calculate_progress(state.books)
     main_menu(first_run)
@@ -117,8 +102,9 @@ def main_menu(first_run=False):
 
         first_run = False
         print()
+
         # Warn if running in test mode, which uses a separate test database
-        if state.db_path == "data/test.db":
+        if "test" in state.db_path:
             print(TEST_MESSAGE)
 
 

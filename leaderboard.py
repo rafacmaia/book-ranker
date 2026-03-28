@@ -15,6 +15,7 @@ from ui import (
     BATCH_SIZE,
     ERROR,
     INITIAL_BATCH_SIZE,
+    LEADERBOARD_MENU,
     LINE_WIDTH,
     PRIMARY,
     PROMPT,
@@ -117,15 +118,12 @@ def _verbose_row(table, b, rank, books):
 
 def _table_menu(batch_end, book_count):
     if batch_end < book_count:
-        print(
-            f"{' ' * (LINE_WIDTH - 20)}"
-            f"{style(f'↵ → See next {BATCH_SIZE}', styling=SECONDARY)}"
-        )
+        print(f"{' ' * (LINE_WIDTH - 19)}{LEADERBOARD_MENU[0]}")
     print(
-        f"{' ' * (LINE_WIDTH - 20)}? → Accuracy tiers\n"
-        f"{' ' * (LINE_WIDTH - 20)}b → Main menu\n"
-        f"{' ' * (LINE_WIDTH - 20)}e → Export\n"
-        f"{' ' * (LINE_WIDTH - 20)}q → Quit"
+        f"{' ' * (LINE_WIDTH - 19)}{LEADERBOARD_MENU[1]}\n"
+        f"{' ' * (LINE_WIDTH - 19)}{LEADERBOARD_MENU[2]}\n"
+        f"{' ' * (LINE_WIDTH - 19)}{LEADERBOARD_MENU[3]}\n"
+        f"{' ' * (LINE_WIDTH - 19)}{LEADERBOARD_MENU[4]}"
     )
 
     choice = input(f"{' ' * (LINE_WIDTH - 8)}{PROMPT}").strip().lower()
