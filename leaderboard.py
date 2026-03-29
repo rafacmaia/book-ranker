@@ -39,7 +39,7 @@ def view_leaderboard(books, verbose=False):
 
     # Print informational summary of the user's library and current confidence level
     print(library_summary(len(books), calculate_progress(books), PRIMARY))
-    press_enter("Press Enter to view leaderboard...")
+    press_enter("Press Enter to view leaderboard... ")
     print()
 
     _print_table(ranked_books, 0, batch_end, books, verbose)

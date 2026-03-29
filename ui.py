@@ -127,7 +127,7 @@ IMPORT_MENU = f""" {style("1", SECONDARY)} → Manual entry
  {style("2", SECONDARY)} → Import from CSV
  {style("b", SECONDARY)} → Back to main menu"""
 
-SIGNATURE = "© 2026 Zou Labs🐈‍⬛"
+SIGNATURE = "© 2026 Zou Labs 🐈‍⬛"
 
 GOODBYE = (
     f"{rule((LINE_WIDTH // 2 - 7), PRIMARY)}"
@@ -182,14 +182,14 @@ ACCURACY_LABELS = [
     (ACCURACY_TIERS[1], "🟠 Low"),
     (ACCURACY_TIERS[2], "🟡 Moderate"),
     (ACCURACY_TIERS[3], "🟢 High"),
-    (ACCURACY_TIERS[4], "✅  Very High"),
+    (ACCURACY_TIERS[4], "✅ Very High"),
 ]
 
-ACCURACY_EXPLAINER = f"""  {ACCURACY_LABELS[0][1]}  — Early data, ranking mostly based on initial rating
-  {ACCURACY_LABELS[1][1]}       — Some data, broad tier is likely correct (top/mid/bottom)
-  {ACCURACY_LABELS[2][1]}  — General position is fairly reliable, exact rank still shifting
-  {ACCURACY_LABELS[3][1]}      — Position is well established, likely within ~5 spots
-  {ACCURACY_LABELS[4][1]} — Locked in, unlikely to shift  by more than 1 or 2 spots"""
+ACCURACY_EXPLAINER = f"""  {ACCURACY_LABELS[0][1]}   — Early data, ranking mostly based on initial rating
+  {ACCURACY_LABELS[1][1]}        — Some data, broad tier is likely correct (top/mid/bottom)
+  {ACCURACY_LABELS[2][1]}   — General position is fairly reliable, exact rank still shifting
+  {ACCURACY_LABELS[3][1]}       — Position is well established, likely within ~5 spots
+  {ACCURACY_LABELS[4][1]}  — Locked in, unlikely to shift by more than 1 or 2 spots"""
 
 # Make sure labels have an odd number of chars to fit the display better.
 PROGRESS_LABELS = [
@@ -197,8 +197,8 @@ PROGRESS_LABELS = [
     (PROGRESS_TIERS[1], "🟠 COOKING"),
     (PROGRESS_TIERS[2], "🟡 GETTING THERE"),
     (PROGRESS_TIERS[3], "🟢 WE'RE CLOSE"),
-    (PROGRESS_TIERS[4], "✅  LOCKED IN"),
-    (PROGRESS_TIERS[5], "✨  COMPLETE!"),
+    (PROGRESS_TIERS[4], "✅ LOCKED IN"),
+    (PROGRESS_TIERS[5], "✨ COMPLETE!"),
 ]
 
 SUMMARY_LABELS = [
